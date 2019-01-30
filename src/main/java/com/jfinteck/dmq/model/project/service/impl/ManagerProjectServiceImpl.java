@@ -12,8 +12,8 @@ public class ManagerProjectServiceImpl implements ManagerProjectService {
     @Autowired
     private ManagerProjectDao managerProjectDao;
 
-    @Override
-    public void saveInfo(ManagerProjectDTO managerProject) {
-        managerProjectDao.insertInfo(managerProject);
-    }
+	public void saveInfo(ManagerProjectDTO managerProject) {
+		managerProjectDao.insertInfo(managerProject);
+	}
+
 }

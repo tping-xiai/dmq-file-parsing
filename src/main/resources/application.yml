@@ -1,0 +1,24 @@
+
+# 项目端口
+server:
+  port: 8088
+
+# 项目名称
+spring: 
+  application: 
+    name: dmp-file-parsing
+    
+  #启用某种配置文件
+  profiles:
+     active: dev
+# 开启debug功能
+debug: false
+
+# 添加Apollo配置
+app: 
+  id: dmp-file-parsing
+# set apollo meta server address, adjust to actual address if necessary
+apollo: 
+  meta: http://localhost:8080
+  bootstrap: 
+     enabled: true
