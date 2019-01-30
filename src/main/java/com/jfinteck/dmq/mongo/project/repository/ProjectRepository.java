@@ -24,4 +24,5 @@ public interface ProjectRepository extends MongoRepository<ProjectEntity, Long> 
      */
 
     List<ProjectEntity> findAllByProjectName(String projectName);
+
 }
