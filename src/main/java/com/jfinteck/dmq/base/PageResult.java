@@ -35,5 +35,5 @@ public class PageResult<T> {
 	private Integer pages;
 	
 	@ApiModelProperty("返回数据")
-	private List<Object> list;
+	private List<T> list;
 }
