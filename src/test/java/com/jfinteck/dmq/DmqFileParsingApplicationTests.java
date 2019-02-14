@@ -1,7 +1,9 @@
 package com.jfinteck.dmq;
 
 import com.jfinteck.dmq.model.project.dao.ManagerProjectDao;
+import com.jfinteck.dmq.model.project.dao.MongodbServerDao;
 import com.jfinteck.dmq.model.project.dto.ManagerProjectDTO;
+import com.jfinteck.dmq.model.project.dto.MongodbServer;
 import com.jfinteck.dmq.mongo.project.entity.ProjectEntity;
 import com.jfinteck.dmq.mongo.project.repository.ProjectRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +25,12 @@ public class DmqFileParsingApplicationTests {
 
     @Autowired
     private ProjectRepository projectRepository;
-
+    
+    @Autowired
+    private MongodbServerDao mongodbServerDao;
+    
     /**
-          * 测试数据保存到MySQL数据库
+     * 测试数据保存到MySQL数据库
      *
      */
     @Test
@@ -65,6 +70,20 @@ public class DmqFileParsingApplicationTests {
         for (ProjectEntity project : projects) {
             System.out.println(project.toString());
         }
+    }
+    
+    @Test
+    public void testFindById() {
+    	MongodbServer mongodbServer = mongodbServerDao.findById(34L);
+    	System.out.println(mongodbServer.toString());
+    }
+    
+    @Test
+    public void testFindAll() {
+    	List<MongodbServer> mongodbServers = mongodbServerDao.findAll();
+    	if( mongodbServers != null ) {
+    		mongodbServers.forEach(mongodb -> System.out.println(mongodb));
+    	}
     }
 
 }

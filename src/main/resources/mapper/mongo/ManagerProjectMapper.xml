@@ -23,4 +23,5 @@
         VALUES(#{project.id}, #{project.projectName}, #{project.projectRemark}, #{project.inExplain},
         #{project.operator}, #{project.state})
     </insert>
+    
 </mapper>

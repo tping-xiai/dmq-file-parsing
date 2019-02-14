@@ -1,10 +1,7 @@
 package com.jfinteck.dmq.component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -55,9 +52,9 @@ public class MongoPageHelper {
 	 * @param pageNum
 	 * @return
 	 */
-	public <T> PageResult<T> pageQuery(Query query, Class<T> entityClass, Integer pageSize, Integer pageNum) {
-		return pageQuery(query, entityClass, Function.identity(), pageSize, pageNum, null);
-	}
+//	public <T> PageResult<T> pageQuery(Query query, Class<T> entityClass, Integer pageSize, Integer pageNum) {
+//		return pageQuery(query, entityClass, Function.identity(), pageSize, pageNum, null);
+//	}
 
 	/**
 	 * 分页查询，不考虑条件分页，直接使用skip-limit来分页.
@@ -75,21 +72,22 @@ public class MongoPageHelper {
 	}
 
 	/**
-	  * 分页查询.
+	 * 分页查询.
 	 *
 	 * @param query       Mongo Query对象，构造你自己的查询条件.
 	 * @param entityClass Mongo collection定义的entity class，用来确定查询哪个集合.
 	 * @param mapper      映射器，你从db查出来的list的元素类型是entityClass,
-	  *                                         如果你想要转换成另一个对象，比如去掉敏感字段等，可以使用mapper来决定如何转换.
+	 *                                         如果你想要转换成另一个对象，比如去掉敏感字段等，可以使用mapper来决定如何转换.
 	 * @param pageSize    分页的大小.
 	 * @param pageNum     当前页.
 	 * @param lastId      条件分页参数, 区别于skip-limit，采用find(_id>lastId).limit分页.
-	  *                                         如果不跳页，像朋友圈，微博这样下拉刷新的分页需求，需要传递上一页的最后一条记录的ObjectId。
-	  *                                         如果是null，则返回pageNum那一页.
+	 *                                         如果不跳页，像朋友圈，微博这样下拉刷新的分页需求，需要传递上一页的最后一条记录的ObjectId。
+	 *                                         如果是null，则返回pageNum那一页.
 	 * @param             <T> collection定义的class类型.
 	 * @param             <R> 最终返回时，展现给页面时的一条记录的类型。
 	 * @return PageResult，一个封装page信息的对象.
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T, R> PageResult<R> pageQuery(Query query, Class<T> entityClass, Function<T, R> mapper, Integer pageSize,
 			Integer pageNum, String lastId) {
 		
@@ -116,7 +114,7 @@ public class MongoPageHelper {
 		final List<T> entityList = mongoTemplate.find(query.addCriteria(criteria)
 				.with(Sort.by(new Order(Direction.ASC, DEFAULT_ID))), entityClass);
 		
-		final PageResult<R> pageResult = new PageResult<R>();
+		final PageResult pageResult = new PageResult();
         pageResult.setTotal(total);
         pageResult.setPages(pages);
         pageResult.setPageSize(pageSize);

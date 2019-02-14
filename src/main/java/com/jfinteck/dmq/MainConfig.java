@@ -3,6 +3,7 @@ package com.jfinteck.dmq;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
@@ -16,5 +17,6 @@ import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
 @MapperScan(basePackages = "com.jfinteck.dmq.model.*.dao")
 @EnableTransactionManagement
 @EnableApolloConfig
+@EnableScheduling
 public class MainConfig {
 }

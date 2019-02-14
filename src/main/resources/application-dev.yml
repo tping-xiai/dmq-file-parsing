@@ -2,7 +2,7 @@
 # MySQL连接路径配置
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/db_mongo?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+    url: jdbc:mysql://localhost:3306/db_mongo?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&allowMultiQueries=true
     username: root
     password: 735900998
     driver-class-name: com.mysql.jdbc.Driver
@@ -19,3 +19,9 @@ spring:
 mybatis:
   type-aliases-package: com.jfinteck.dmq.model.*.dao
   mapper-locations: classpath:/mapper/**/*.xml
+  
+  
+# 设置心跳监控MongoDB操作的时间
+mongodb:
+  heartbeat:
+    monitoring: 3000

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jfinteck.dmq.model.project.dao.MongodbServerDao">
+
+   <!-- 表字段 -->
+   <sql id="mongodbServerSQL">
+      `host`, `port`, `username`, `password`, `tags`, `flag`
+   </sql>
+   
+   <!-- 表字段映射说明 -->
+   <resultMap id="mongodbServerResultMap" type="com.jfinteck.dmq.model.project.dto.MongodbServer">
+      <id column="id" property="id" javaType="java.lang.Long" />
+      <result column="host" property="host" javaType="java.lang.String"/>
+      <result column="port" property="port" javaType="java.lang.String"/>
+      <result column="username" property="username" javaType="java.lang.String"/>
+      <result column="password" property="password" javaType="java.lang.String"/>
+      <result column="tags" property="tags" javaType="java.lang.String"/>
+      <result column="flag" property="flag" javaType="java.lang.String"/>
+   </resultMap>
+
+   <!-- 插入数据 -->
+   <insert id="insert" parameterType="com.jfinteck.dmq.model.project.dto.MongodbServer">
+      INSERT INTO tb_mongodb_server(<include refid="mongodbServerSQL" />)
+      VALUES(#{mongo.host}, #{mongo.port}, #{mongo.username}, #{mongo.password}, #{mongo.tags}, #{mongo.flag})
+   </insert>
+   
+   <!-- 删除数据 -->
+   <delete id="delete">
+      DELETE FROM tb_mongodb_server WHERE `id` = #{id}
+   </delete>
+   
+   <!-- 根据编号查询数据 -->
+   <select id="findById" resultMap="mongodbServerResultMap">
+      SELECT `id`, <include refid="mongodbServerSQL" />
+        FROM tb_mongodb_server
+       WHERE `id` = #{id}
+         AND `flag` = '1'
+       ORDER BY `id` DESC
+   </select>
+   
+   <!-- 查询所有数据 -->
+   <select id="findAll" resultMap="mongodbServerResultMap">
+      SELECT `id`, <include refid="mongodbServerSQL" />
+        FROM tb_mongodb_server
+       WHERE `flag` = '1'
+       ORDER BY `id` DESC
+   </select>
+</mapper>
