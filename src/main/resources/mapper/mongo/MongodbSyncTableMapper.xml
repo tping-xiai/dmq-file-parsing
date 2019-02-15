@@ -4,7 +4,7 @@
 
    <!-- 表字段 -->
    <sql id="mongodbSyncTbaleSQL">
-      `id`, `server_id`, `table_name`, `prefix_name`, `falg`
+      `id`, `server_id`, `table_name`, `prefix_name`, `flag`
    </sql>
    
    <!-- 表字段映射 -->
@@ -13,7 +13,7 @@
       <result column="server_id" property="serverId" javaType="java.lang.Long"/>
       <result column="table_name" property="tableName" javaType="java.lang.String"/>
       <result column="prefix_name" property="prefixName" javaType="java.lang.String"/>
-      <result column="falg" property="flag" javaType="java.lang.String"/>
+      <result column="flag" property="flag" javaType="java.lang.String"/>
    </resultMap>
    
    <!-- 插入数据 -->
@@ -37,8 +37,8 @@
          <if test="prefixName != null and prefixName != ''.toString()">
            prefix_name = #{prefixName},
          </if>
-         <if test="falg != null and falg != ''.toString()">
-           falg = #{falg},
+         <if test="flag != null and flag != ''.toString()">
+           flag = #{flag},
          </if>
       </set>
        where id = #{id}
@@ -56,6 +56,8 @@
       select <include refid="mongodbSyncTbaleSQL" />
         from tb_mongodb_sync_table
        where server_id = #{id}
+         and flag = '1'
+        order by `id` desc
    </select>
 
 </mapper>

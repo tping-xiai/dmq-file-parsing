@@ -1,6 +1,7 @@
 package com.jfinteck.dmq;
 
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -18,5 +19,6 @@ import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
 @EnableTransactionManagement
 @EnableApolloConfig
 @EnableScheduling
+@EnableBatchProcessing
 public class MainConfig {
 }

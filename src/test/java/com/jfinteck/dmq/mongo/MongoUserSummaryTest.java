@@ -67,25 +67,25 @@ public class MongoUserSummaryTest {
 	@Test
 	public void findUserSummaryPage() {
 		Query query = new Query(Criteria.where("_id").gt(new ObjectId("5c6379ff25eab50e28176138")));
-		
+
 		log.info("开始查询数据....");
 		long startTime = System.currentTimeMillis();
-		
+
 		int pageSize = 100;
 		int pageNum = 1;
-		PageResult<UserSummaryDTO> pageQequest = mongoPageHelper.pageQuery(query, UserSummary.class, new UserSummaryFunction(), pageSize, pageNum);
-		
+		PageResult<UserSummaryDTO> pageQequest = mongoPageHelper.pageQuery(query, UserSummary.class,
+				new UserSummaryFunction(), pageSize, pageNum);
+
 		System.out.println(pageQequest.getList().size());
 		long endTime = System.currentTimeMillis();
-		
+
 		log.info("结束查询数据，使用时间：" + (endTime - startTime));
-		
-		/*
-		 * for (UserSummaryDTO userSummary : pageQequest.getList()) {
-		 * System.out.println(userSummary.toString()); }
-		 */
-		
-		userSummaryDao.batchInsert(pageQequest.getList());
+
+		for (UserSummaryDTO userSummary : pageQequest.getList()) {
+			System.out.println(userSummary.toString());
+		}
+
+		//userSummaryDao.batchInsert(pageQequest.getList());
 	}
 	
 }

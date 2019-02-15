@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jfinteck.dmq.config.ManagerInterfaceComm;
+import com.jfinteck.dmq.comm.ManagerInterfaceComm;
 import com.jfinteck.dmq.model.project.dto.ManagerProjectDTO;
 
 import io.swagger.annotations.Api;

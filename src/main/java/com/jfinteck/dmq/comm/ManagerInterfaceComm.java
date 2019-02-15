@@ -1,4 +1,4 @@
-package com.jfinteck.dmq.config;
+package com.jfinteck.dmq.comm;
 
 /**
   *  定义常量数据

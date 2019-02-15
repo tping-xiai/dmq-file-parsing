@@ -8,11 +8,16 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
   type: com.alibaba.druid.pool.DruidDataSource
 
-  
+
 # Mongodb连接路径配置
   data:
     mongodb:
       uri: mongodb://localhost:27017/my_mongodb
+      
+  # 设置job设置成不可用（因为Spring Batch在加载的时候job默认都会执行）
+  batch:
+    job:
+      enabled: true
       
       
 # Mybatis配置
@@ -20,7 +25,8 @@ mybatis:
   type-aliases-package: com.jfinteck.dmq.model.*.dao
   mapper-locations: classpath:/mapper/**/*.xml
   
-  
+
+
 # 设置心跳监控MongoDB操作的时间
 mongodb:
   heartbeat:

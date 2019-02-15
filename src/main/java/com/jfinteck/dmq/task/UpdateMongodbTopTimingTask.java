@@ -118,17 +118,18 @@ public class UpdateMongodbTopTimingTask implements TimingTask{
 		 */
 		boolean flag = false;
 		for (MongodbSyncTable mongodbSyncTable : syncTables) {
-			if( !StringUtils.isEmpty(mongodbSyncTable.getTableName()) ) {
-				String[] tableName = mongodbSyncTable.getTableName().split(".");
-				// 如果表名称不为空，则先比较表名
-				if( namespace.equalsIgnoreCase(tableName[tableName.length - 1]) ) {
-					flag = true;
-					break;
-				}else {
-					
-				}
-			}else {
-				
+			// 如果表名称不为空，则先比较表名
+			if( !StringUtils.isEmpty(mongodbSyncTable.getTableName()) && 
+					namespace.endsWith(mongodbSyncTable.getTableName())) {
+				flag = true;
+				break;
+			}
+			
+			// 再次比较匹配前缀名称
+			if( !StringUtils.isEmpty(mongodbSyncTable.getPrefixName()) && 
+					namespace.startsWith(mongodbSyncTable.getPrefixName())) {
+				flag = true;
+				break;
 			}
 		}
 		return flag;
