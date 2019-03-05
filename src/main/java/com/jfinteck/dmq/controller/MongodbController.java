@@ -118,19 +118,15 @@ public class MongodbController {
 	 */
 	@ApiOperation(value="编辑基本信息")
 	@PutMapping("/update")
-	public ResultBean<String> update(@RequestBody MongodbServerVo mongodbServer){
+	public ResultBean<String> update(@RequestBody MongodbServer mongodbServer){
 		
 		log.info("request data param: {}", JSON.toJSONString(mongodbServer));
 		
-		// 对象之间值转换
-		MongodbServer server = new MongodbServer();
-		try {
-			BeanUtils.copyProperties(server, mongodbServer);
-			mongodbServerService.updateById(server);
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			log.error("VO Object conversion DTO Object is error: ", e);
-			return new ResultBean.Builder<String>().buildSucceed("编辑失败.");
+		if( ValidatorUtil.hasError(mongodbServer) ) {
+			return new ResultBean.Builder<String>().build(ErrorEnum.VALIDATE_EXCEPTION);
 		}
+		// 对象之间值转换
+		mongodbServerService.updateById(mongodbServer);
 		return new ResultBean.Builder<String>().build(ErrorEnum.SUCCESS);
 	}
 	
@@ -174,4 +170,21 @@ public class MongodbController {
 		List<MongodbListDatabasesDTO> databases = mongodbServerService.getMongodbListDatabases(id);
 		return new ResultBean.Builder<List<MongodbListDatabasesDTO>>().build(ErrorEnum.SUCCESS, databases);
 	}
+	
+	/**
+	 * 获取指定数据库表名称
+	 * 
+	 * @param serverVo
+	 * @return
+	 */
+	@ApiOperation(value="获取指定数据库表名称")
+	@PostMapping("/get-top-ns")
+	public ResultBean<List<MongodbListDatabasesDTO>> getMongodbTopNs(@RequestBody MongodbServerVo serverVo){
+		log.info("request data param: {}", JSON.toJSONString(serverVo));
+		
+		
+		
+		return new ResultBean.Builder<List<MongodbListDatabasesDTO>>().build(ErrorEnum.SUCCESS);
+	}
+	
 }

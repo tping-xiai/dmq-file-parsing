@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MongoOperatingComponent {
 
 	/**
-	 * 默认连接MongonDB的用户名称
+	 * 默认连接MongonDB的数据库名称
 	 */
 	private static final String ADMIN_DATABASE_NAME = "admin";
 	
@@ -93,7 +93,7 @@ public class MongoOperatingComponent {
 			}
 			
 		} catch (Exception e) {
-			log.error("Connection MongnDB is error：{}", e);
+			log.error("Connection MongoDB is error：{}", e);
 		}finally {
 			// 关闭连接
 			if( mongoClient != null ) {
