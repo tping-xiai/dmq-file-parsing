@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import com.jfinteck.dmq.base.PageResult;
+import com.jfinteck.dmq.core.base.PageResult;
 
 /**
  * MongoDB分页查询工具类.

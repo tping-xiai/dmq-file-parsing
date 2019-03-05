@@ -1,10 +1,10 @@
 package com.jfinteck.dmq.mongo.project.repository;
 
-import com.jfinteck.dmq.mongo.project.entity.ProjectEntity;
+import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.List;
+import com.jfinteck.dmq.mongo.project.entity.ProjectEntity;
 
 /**
  * 定义操作Mongodb数据库接口

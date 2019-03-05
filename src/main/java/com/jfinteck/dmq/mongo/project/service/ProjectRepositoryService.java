@@ -1,8 +1,8 @@
 package com.jfinteck.dmq.mongo.project.service;
 
-import com.jfinteck.dmq.mongo.project.entity.ProjectEntity;
-
 import java.util.List;
+
+import com.jfinteck.dmq.mongo.project.entity.ProjectEntity;
 
 public interface ProjectRepositoryService {
 

@@ -3,7 +3,7 @@ package com.jfinteck.dmq.mongo.project.entity;
 import java.math.BigInteger;
 import java.util.Date;
 
-import com.jfinteck.dmq.base.BeanEntity;
+import com.jfinteck.dmq.core.base.BeanEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

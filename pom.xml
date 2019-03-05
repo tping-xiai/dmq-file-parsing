@@ -19,14 +19,28 @@
 		<swagger2.version>2.6.1</swagger2.version>
 		<guava.version>19.0</guava.version>
 		<gson.version>2.8.2</gson.version>
-		<mysql.version>5.1.35</mysql.version>
+		<mybatis-plus.version>2.0</mybatis-plus.version>
 	</properties>
-	
+
+
 	<repositories>
-	    <repository>
-	        <id>jitpack.io</id>
-	        <url>https://jitpack.io</url>
-	    </repository>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+		<!-- 公司的maven私有库 -->
+		<repository>
+		    <id>public</id>
+		    <name>public release</name>
+		    <url>http://192.168.1.20:8081/content/groups/public/</url>
+		    <releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</repository>
 	</repositories>
 
 	<dependencyManagement>
@@ -60,22 +74,40 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-		<!-- 任务调度依赖 -->
 		<dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-batch</artifactId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
-        <!-- Redis 依赖 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-
+        
+		<!-- 任务调度依赖 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-batch</artifactId>
+		</dependency>
+		<!-- Redis 依赖 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+        <!-- mysql driver -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql.version}</version>
+			<scope>runtime</scope>
 		</dependency>
+		<!-- mybatis-plus -->
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus</artifactId>
+			<version>${mybatis-plus.version}</version>
+		</dependency>
+		<!-- HikariCP -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+		
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -86,14 +118,13 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- 开发热部署依赖 -->
 		<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional>
-        </dependency>
-		
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
 
 		<!-- apollo -->
 		<dependency>
@@ -101,7 +132,7 @@
 			<artifactId>apollo-client</artifactId>
 			<version>${apollo.version}</version>
 		</dependency>
-		
+
 		<!-- Apollo依赖jar包 -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -137,7 +168,7 @@
 			<artifactId>fastjson</artifactId>
 			<version>${fastjson.version}</version>
 		</dependency>
-		
+
 		<!-- commons-lang3 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -147,11 +178,17 @@
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 		</dependency>
-		
+		<!-- JF 加解密jar -->
 		<dependency>
-		    <groupId>com.github.Ryan-Miao</groupId>
-		    <artifactId>mongo-page-helper</artifactId>
-		    <version>1.0</version>
+			<groupId>com.jfpal</groupId>
+			<artifactId>security</artifactId>
+			<version>0.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.Ryan-Miao</groupId>
+			<artifactId>mongo-page-helper</artifactId>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 

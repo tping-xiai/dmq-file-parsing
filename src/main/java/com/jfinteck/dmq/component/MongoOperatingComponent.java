@@ -3,7 +3,7 @@ package com.jfinteck.dmq.component;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.jfinteck.dmq.model.project.dto.MongodbServer;
+import com.jfinteck.dmq.dto.MongodbServer;
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBObject;

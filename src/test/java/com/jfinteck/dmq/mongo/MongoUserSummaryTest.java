@@ -12,10 +12,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.jfinteck.dmq.base.PageResult;
 import com.jfinteck.dmq.component.MongoPageHelper;
-import com.jfinteck.dmq.model.project.dao.UserSummaryDao;
-import com.jfinteck.dmq.model.project.dto.UserSummaryDTO;
+import com.jfinteck.dmq.core.base.PageResult;
 import com.jfinteck.dmq.mongo.project.entity.UserSummary;
 import com.jfinteck.dmq.mongo.project.entity.UserSummaryFunction;
 import com.jfinteck.dmq.mongo.project.repository.UserSummaryRepository;
@@ -33,8 +31,6 @@ public class MongoUserSummaryTest {
 	@Autowired
 	private MongoPageHelper mongoPageHelper;
 	
-	@Autowired
-	private UserSummaryDao userSummaryDao;
 	
 	@Test
 	public void initData() {
@@ -66,24 +62,24 @@ public class MongoUserSummaryTest {
 	
 	@Test
 	public void findUserSummaryPage() {
-		Query query = new Query(Criteria.where("_id").gt(new ObjectId("5c6379ff25eab50e28176138")));
-
-		log.info("开始查询数据....");
-		long startTime = System.currentTimeMillis();
-
-		int pageSize = 100;
-		int pageNum = 1;
-		PageResult<UserSummaryDTO> pageQequest = mongoPageHelper.pageQuery(query, UserSummary.class,
-				new UserSummaryFunction(), pageSize, pageNum);
-
-		System.out.println(pageQequest.getList().size());
-		long endTime = System.currentTimeMillis();
-
-		log.info("结束查询数据，使用时间：" + (endTime - startTime));
-
-		for (UserSummaryDTO userSummary : pageQequest.getList()) {
-			System.out.println(userSummary.toString());
-		}
+//		Query query = new Query(Criteria.where("_id").gt(new ObjectId("5c6379ff25eab50e28176138")));
+//
+//		log.info("开始查询数据....");
+//		long startTime = System.currentTimeMillis();
+//
+//		int pageSize = 100;
+//		int pageNum = 1;
+//		PageResult<UserSummaryDTO> pageQequest = mongoPageHelper.pageQuery(query, UserSummary.class,
+//				new UserSummaryFunction(), pageSize, pageNum);
+//
+//		System.out.println(pageQequest.getList().size());
+//		long endTime = System.currentTimeMillis();
+//
+//		log.info("结束查询数据，使用时间：" + (endTime - startTime));
+//
+//		for (UserSummaryDTO userSummary : pageQequest.getList()) {
+//			System.out.println(userSummary.toString());
+//		}
 
 		//userSummaryDao.batchInsert(pageQequest.getList());
 	}

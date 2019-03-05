@@ -30,7 +30,8 @@ CREATE TABLE `tb_mongodb_server` (
   `password` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '密码',
   `tags` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '标签',
   `flag` varchar(1) COLLATE utf8_unicode_ci DEFAULT '1' COMMENT '1-可用,0-不可用',
-  `create_time` datetime DEFAULT NOW() COMMENT '创建时间',
+  `create_time`  datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time`  datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日期',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='连接MongoDB的服务表';
 
