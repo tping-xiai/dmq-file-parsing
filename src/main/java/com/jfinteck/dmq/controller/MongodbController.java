@@ -1,11 +1,9 @@
 package com.jfinteck.dmq.controller;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.validation.Valid;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +26,6 @@ import com.jfinteck.dmq.dto.MongodbOverviewDTO;
 import com.jfinteck.dmq.dto.MongodbServer;
 import com.jfinteck.dmq.dto.MongodbServerDTO;
 import com.jfinteck.dmq.service.IMongodbServerService;
-import com.jfinteck.dmq.vo.MongodbServerVo;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -170,21 +167,4 @@ public class MongodbController {
 		List<MongodbListDatabasesDTO> databases = mongodbServerService.getMongodbListDatabases(id);
 		return new ResultBean.Builder<List<MongodbListDatabasesDTO>>().build(ErrorEnum.SUCCESS, databases);
 	}
-	
-	/**
-	 * 获取指定数据库表名称
-	 * 
-	 * @param serverVo
-	 * @return
-	 */
-	@ApiOperation(value="获取指定数据库表名称")
-	@PostMapping("/get-top-ns")
-	public ResultBean<List<MongodbListDatabasesDTO>> getMongodbTopNs(@RequestBody MongodbServerVo serverVo){
-		log.info("request data param: {}", JSON.toJSONString(serverVo));
-		
-		
-		
-		return new ResultBean.Builder<List<MongodbListDatabasesDTO>>().build(ErrorEnum.SUCCESS);
-	}
-	
 }

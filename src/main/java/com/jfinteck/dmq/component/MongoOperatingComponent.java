@@ -9,6 +9,7 @@ import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 
 import lombok.extern.slf4j.Slf4j;
@@ -102,6 +103,50 @@ public class MongoOperatingComponent {
 		}
 		
 		return jsonObject;
+	}
+	
+	/**
+	 * 
+	 * @param mongodbServer
+	 * @param databaseName
+	 * @return
+	 */
+	public MongoDatabase getMongoDatabase(MongodbServer mongodbServer, String databaseName) {
+		if( mongodbServer != null ) {
+			String host = mongodbServer.getHost();
+			String port = mongodbServer.getPort();
+			String username = mongodbServer.getUsername();
+			String password = mongodbServer.getPassword();
+			return getMongoDatabase(host, port, username, password, databaseName);
+		}
+		return null;
+	}
+	
+	public MongoDatabase getMongoDatabase(String host, String port, String username, String password,
+			String databaseName) {
+		// 拼接连接MongnoDB的url地址
+		String DEFAULT_URL = "";
+
+		if ((username == null || username.isEmpty()) && (password == null || password.isEmpty())) {
+			DEFAULT_URL = String.format("mongodb://" + host + ":" + port);
+		} else {
+			DEFAULT_URL = String.format("mongodb://" + username + ":" + password + "@" + host + ":" + port);
+		}
+		MongoDatabase database = null;
+		MongoClient mongoClient = null;
+		try {
+			MongoClientURI mongoClientURI = new MongoClientURI(DEFAULT_URL);
+			mongoClient = new MongoClient(mongoClientURI);
+			database = mongoClient.getDatabase(databaseName);
+		} catch (Exception e) {
+			log.error("Connection MongoDB is error：{}", e);
+		} finally {
+			// 关闭连接
+			if (mongoClient != null) {
+				mongoClient.close();
+			}
+		}
+		return database;
 	}
 	
 }

@@ -167,7 +167,8 @@ public class MongodbServerServiceImpl extends ServiceImpl<MongodbServerMapper, M
 				commandResult = db.command("serverStatus");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Test Connaction MongoDB is faild. error: ", e);
+			return null;
 		}
 		
 		return commandResult;

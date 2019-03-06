@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>解析MongoDB数据库</title>
+	<link rel="stylesheet" href="https://unpkg.com/element-ui@2.0.5/lib/theme-chalk/index.css">
+	<script src="../js/vue.js"></script>
+	<script src="../js/vue-resource.js"></script>
+	<script src="../js/vue-router.js"></script>
+	<script src="../js/index.js"></script>
+	
+	<link rel="stylesheet" href="css/common.css" />
+</head>
+<body>
+   <div id="id_server">
+       <el-container>
+          <!-- Menu ./start -->
+	      <el-header>
+		      <el-menu class="el-menu-demo" mode="horizontal">
+			      <el-menu-item index="1" class="is-active">服务列表</el-menu-item>
+			      <el-menu-item index="2"><a href="rules.html">规则列表</a></el-menu-item>
+			      <el-menu-item index="3"><a href="logs.html">校验结果</a></el-menu-item>
+		      </el-menu>
+	      </el-header>
+	      <!-- Menu ./end -->
+	      <el-main>
+	         <!-- 面包屑 ./start -->
+	         <div style="margin-bottom: 20px;">
+		        <el-breadcrumb separator="/">
+		          <el-breadcrumb-item><a href="/">服务列表</a></el-breadcrumb-item>
+		          <el-breadcrumb-item>列表数据</el-breadcrumb-item>
+		        </el-breadcrumb>
+	         </div>
+	         <!-- 面包屑 ./end -->
+	         <el-row class="data-table">
+		        <el-button type="primary" size="small" round @click="handleAdd"> + 新增服务</el-button>
+	         </el-row>
+	         
+	         <!-- table ./start -->
+	         <div style="margin-top: 10px;">
+	            <el-table border style="width:100%;" :data="tableData">
+	               <el-table-column prop="id" label="编号"></el-table-column>
+	               <el-table-column prop="host" label="主机地址"></el-table-column>
+	               <el-table-column prop="port" label="端口编号"></el-table-column>
+	               <el-table-column prop="tags" label="标签"></el-table-column>
+	               <el-table-column prop="status" label="服务状态"></el-table-column>
+	               <el-table-column prop="uptime" label="运行时长"></el-table-column>
+	               <el-table-column width="120" prop="flag" label="可用状态">
+	                 <template slot-scope="scope">
+				        <el-button :type="scope.row.flag === '1' ? 'success' : 'danger'" size="mini" round>{{scope.row.flag === '1' ? '正常' : '禁用'}}</el-button>
+				     </template>
+	               </el-table-column>
+	               <el-table-column label="操作" width="250">
+	                  <template slot-scope="scope">
+	                     <!-- <router-link :to="'databases'" replace></router-link>-->
+	                     <el-button size="mini" type="primary" @click="showDatabase(scope.$index, scope.row)">数据库</el-button>
+	                     <el-button size="mini" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
+		                 <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+	                  </template>
+	               </el-table-column>
+	            </el-table>
+	            <div align="center" style="margin-top: 10px;">
+				  <el-pagination
+				      :current-page="currentPage"
+				      :page-sizes="[10, 20, 30, 40]"
+				      :page-size="pagesize"
+				      layout="total, sizes, prev, pager, next, jumper"
+				      :total="totalCount">
+				  </el-pagination>
+			    </div>
+	         </div>
+	         <!-- table ./end -->
+	         
+	         <!-- alter ./start -->
+	         <div style="margin:20px 0;">
+		         <el-alert
+				    title="温馨提示"
+				    type="warning"
+				    description="1、请确保输入服务可连接成功，否则页面会加载数据缓慢的情况。2、页面加载数据，会尝试连接服务。"
+				    show-icon
+				    :closable="false">
+				 </el-alert>
+			 </div>
+	         <!-- alter ./end -->
+	      </el-main>
+	      <!-- Menu ./end -->
+	      <!-- footer ./start -->
+	      <el-footer><p style="text-align: center;">@2019 深圳市前海即富信息技术金融服务有限公司</p></el-footer>
+	      <!-- fotter ./end -->
+       </el-container>
+       
+       <!-- add ./start -->
+       <el-dialog width="30%" title="新增服务信息" :visible.sync="addFormVisible">
+          <el-form :model="addform" :rules="rules" ref="addform">
+              <el-form-item label="主机地址" label-width="120px" style="width:90%" prop="host">
+			    <el-input size="medium" v-model="addform.host" auto-complete="off"></el-input>
+			  </el-form-item>
+			  <el-form-item label="端口编号" label-width="120px" style="width:90%" prop="port">
+			    <el-input size="medium" v-model="addform.port" auto-complete="off"></el-input>
+			  </el-form-item>
+			  <el-form-item label="用户名称" label-width="120px" style="width:90%" prop="username">
+			    <el-input size="medium" v-model="addform.username" auto-complete="off"></el-input>
+			  </el-form-item>
+			  <el-form-item label="登录密码" label-width="120px" style="width:90%" prop="password">
+			    <el-input size="medium" v-model="addform.password" auto-complete="off"></el-input>
+			  </el-form-item>
+			  <el-form-item label="标签描述" label-width="120px" style="width:90%" prop="tags">
+			    <el-input size="medium" v-model="addform.tags" auto-complete="off"></el-input>
+			  </el-form-item>
+			  <el-form-item label="可用状态" label-width="120px" style="width:60%">
+			    <el-switch
+				  style="display: block;margin-top:10px;"
+				  v-model="addform.flag"
+				  active-color="#13ce66"
+				  active-text="正常"
+				  inactive-text="不正常">
+				</el-switch>
+			  </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+		    <el-button size="small" @click="add_cancel('addform')">取&nbsp;&nbsp;消</el-button>
+		    <el-button size="small" type="primary" @click="add('addform')">确&nbsp;&nbsp;定</el-button>
+		  </div>
+       </el-dialog>       
+       <!-- add ./end -->
+       
+       <!-- edit ./start -->
+       <el-dialog width="30%" title="编辑服务信息" :visible.sync="updateFormVisible">
+          <el-form :model="updateform" :rules="rules" ref="updateform">
+              <el-form-item label="主机地址" label-width="120px" style="width:90%" prop="host">
+			    <el-input size="medium" v-model="updateform.host" auto-complete="off"></el-input>
+			  </el-form-item>
+			  <el-form-item label="端口编号" label-width="120px" style="width:90%" prop="port">
+			    <el-input size="medium" v-model="updateform.port" auto-complete="off"></el-input>
+			  </el-form-item>
+			  <el-form-item label="标签描述" label-width="120px" style="width:90%" prop="tags">
+			    <el-input size="medium" v-model="updateform.tags" auto-complete="off"></el-input>
+			  </el-form-item>
+			  <el-form-item label="可用状态" label-width="120px" style="width:60%">
+			    <el-switch
+				  style="display: block;margin-top:10px;"
+				  v-model="updateform.flag"
+				  active-color="#13ce66"
+				  active-text="正常"
+				  inactive-text="不正常">
+				</el-switch>
+			  </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+		    <el-button size="small" @click="updateFormVisible = false">取&nbsp;&nbsp;消</el-button>
+		    <el-button size="small" type="primary" @click="edit('updateform')">确&nbsp;&nbsp;定</el-button>
+		  </div>
+       </el-dialog>     
+       <!-- edit ./end -->
+   </div>
+   <!-- JAVASCRIPT -->
+   <script>
+      /* const routes = [
+    	  {name: "databases", path: "/databases"}
+      ]
+      const router = new VueRouter({
+	      routes // （缩写）相当于 routes: routes
+	  }); */
+      var vue = new Vue({
+    	  el: "#id_server",
+    	  data: {
+    		  tableData: [],
+    		  //请求的URL
+  		      url:'/api/mongodb',
+      		  //默认每页数据量
+  	          pagesize: 10,		        
+  	          //当前页码
+  	          currentPage: 1,
+  	          //查询的页码
+  	          start: 1,
+  	          //默认数据总数
+  	          totalCount: 1000,
+  	          //添加对话框默认可见性
+  	          addFormVisible: false,
+  	          updateFormVisible: false,
+  	          addform: {
+  	        	host: '',
+  	        	port: '27017',
+  	        	username: '',
+  	        	password: '',
+  	        	tags: '',
+  	        	flag: true
+  	          },
+  	          updateform: {
+  	        	id: '',
+  	        	host: '',
+  	        	port: '',
+  	        	tags: '',
+  	        	flag: ''
+  	          },
+  	          rules: {
+  	        	host: [
+  	        		{required: true, message: '请输入主机地址', trigger: 'blur'},
+  	        		{max: 20, message: '最大长度在 20 个字符', trigger: 'blur'}
+  	        	],
+  	        	port: [{required: true, message: '请输入端口号', trigger: 'blur'}],
+  	        	username: [{max: 20, message: '最大长度在 20个字符', trigger: 'blur'}],
+  	        	password: [{max: 20, message: '最大长度在 20个字符', trigger: 'blur'}],
+  	        	tags: [{max: 30, message: '最大长度在 20个字符', trigger: 'blur'}]
+  	        }
+    	  },
+    	  methods: {
+    		  // 加载数据
+    		  loadData: function(pageNum, pageSize){
+    			  var option = {"pageNum": pageNum, "pageSize": pageSize}
+    			  this.$http.post(this.url + "/load", option).then((res) => {
+   					  this.tableData = res.body.responseData.records;
+   	            	  this.totalCount = res.body.responseData.total;
+    			  }),function(){
+    				  console.log('failed');
+	              	  this.$message.error('抱歉网络错误.请稍后重试.');
+    			  }
+    		  },
+    		  // 新增服务
+    		  handleAdd: function(){
+    			  this.addFormVisible = true;
+    		  },
+    		  // 取消新增
+    		  add_cancel: function(formName){
+    			  this.addFormVisible = false;
+    			  // 重置表单
+				  this.$refs[formName].resetFields();
+    		  },
+    		  add: function(formName){
+    			  var that = this;
+    			  this.$refs[formName].validate((valid) => {
+    				  if(valid){
+    					  that.addform.flag = that.addform.flag ? '1' : '0';
+    					  that.$http.post(that.url + "/add", that.addform).then((res) => {
+    						  var body = res.body;
+    						  if( body.code == '00000' ){
+    							  that.addFormVisible = false;
+    							  this.$message({
+ 		        		             message: body.msg,
+ 		        		             type: 'success'
+ 		        		          });
+ 								  // 重置表单
+ 								  this.$refs[formName].resetFields();
+ 			        			  // 重新加载页面数据
+ 			        			  this.loadData(this.currentPage, this.pagesize);
+    						  }else{
+    							  console.log('failed');
+				              	  this.$message.error(body.msg);
+    						  }
+    					  }),function(){
+    						  console.log('failed');
+							  that.addFormVisible = false;
+			              	  this.$message.error('抱歉网络错误.请稍后重试.');
+    					  }
+    				  }else{
+    					  console.log('add submit error');
+    					  return ;
+    				  }
+    			  });
+    		  },
+    		  // 服务信息
+    		  handleDelete: function(index, row){
+    			  this.$confirm("您确定是要删除【ID = " + row.id + "】的数据吗？", {
+    				  confirmButtonText: '确定',
+  			          cancelButtonText: '取消',
+  			          type: 'warning'
+    			  }).then(() => {
+    				  this.$http.delete(this.url + "/delete/" + row.id)
+        			  .then((res) => {
+        				  var body = res.body;
+        				  if( body.code == '00000' ){
+        					  this.$message({
+    	        		           message: '删除成功.',
+    	        		           type: 'success'
+    	        		        });
+    		        			
+    		        			// 重新加载页面数据
+    		        			this.loadData(this.currentPage, this.pagesize);
+        				  }else{
+        					  this.$message.error(body.msg);
+        				  }
+        			  }),function(){
+        				  console.log('failed');
+    	              	  this.$message.error('抱歉网络错误.请稍后重试.');
+        			  }
+    			  });
+    		  },
+    		  // 编辑
+    		  handleUpdate: function(index, row){
+    			  this.updateFormVisible = true;
+    			  this.updateform.id = row.id;
+    			  this.updateform.host = row.host;
+    			  this.updateform.port = row.port;c
+    			  this.updateform.tags = row.tags;
+    			  this.updateform.flag = row.flag == '1' ? true : false;
+    		  },
+    		  edit: function(){
+    			  var form = this.updateform;
+    			  form.flag = form.flag ? '1' : '0';
+    			  this.$http.put(this.url + "/update", form)
+    			  .then((res) => {
+    				  var body = res.body;
+    				  if( body.code == '00000' ){
+    					  this.updateFormVisible = false;
+  	        			  this.$message({
+          		             message: '编辑成功.',
+          		             type: 'success'
+          		          });
+  	        			
+  	        			  // 重新加载页面数据
+  	        			  this.loadData(this.currentPage, this.pagesize);
+    				  }else{
+    					  this.$message.error('编辑失败.');
+    				  }
+    			  }),function(){
+    				  console.log('failed');
+  	        		  this.updateFormVisible = false;
+  	        		  this.$message.error('抱歉网络错误.请稍后重试.');
+    			  }
+    		  },
+    		  showDatabase: function(index, row){
+    			  window.location.href="/databases?id=" + row.id;
+    		  }
+    	  }
+      });
+      // 加载数据
+      vue.loadData(vue.currentPage, vue.pagesize);
+   </script>
+</body>
+</html>

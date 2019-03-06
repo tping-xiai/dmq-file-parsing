@@ -29,11 +29,13 @@ spring:
   batch:
     job:
       enabled: true
+  thymeleaf:
+    cache: false
+    prefix: classpath:/public/thymeleaf/
       
       
 # Mybatis配置
 mybatis:
   type-aliases-package: com.jfinteck.dmq.mapper*
   mapper-locations: classpath:/mapper/**.xml
- 
  

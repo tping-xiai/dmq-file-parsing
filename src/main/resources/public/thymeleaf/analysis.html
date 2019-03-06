@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+	<title>解析MongoDB数据库</title>
+	
+	<link rel="stylesheet" href="https://unpkg.com/element-ui@2.0.5/lib/theme-chalk/index.css">
+	<script src="../js/vue.js"></script>
+	<script src="../js/vue-resource.js"></script>
+	<script src="../js/vue-router.js"></script>
+	<script src="../js/index.js"></script>
+	
+	<link rel="stylesheet" href="css/common.css" />
+</head>
+<body>
+   <div id="id_analysis">
+      <el-container>
+         <!-- Menu ./start -->
+	     <el-header>
+	        <el-menu class="el-menu-demo" mode="horizontal">
+		      <el-menu-item index="1" class="is-active">服务列表</el-menu-item>
+		      <el-menu-item index="2"><a href="rules.html">规则列表</a></el-menu-item>
+		      <el-menu-item index="3"><a href="logs.html">校验结果</a></el-menu-item>
+	        </el-menu>
+	     </el-header>
+	     <!-- Menu ./end -->
+	     <el-main>
+	         <!-- 面包屑 ./start -->
+	         <div style="margin-bottom: 20px;">
+		        <el-breadcrumb separator="/">
+		          <el-breadcrumb-item><a href="/index">服务列表</a></el-breadcrumb-item>
+		          <el-breadcrumb-item><a :href="databaseURL">数据库列表</a></el-breadcrumb-item>
+		          <el-breadcrumb-item>解析数据</el-breadcrumb-item>
+		        </el-breadcrumb>
+	         </div>
+	         <!-- 面包屑 ./end -->
+	         
+	         <div style="margin-top: 10px;">
+	           <div style="margin: 50px auto; width: 1100px;">
+				  <el-steps :active="active" align-center finish-status="success">
+					 <el-step title="步骤 1" description="选择要解析的集合名称"></el-step>
+					 <el-step title="步骤 2" description="选择集合中药解析的字段名"></el-step>
+					 <el-step title="步骤 3" description="填写解析数据存放位置"></el-step>
+					 <el-step title="步骤 4" description="完成数据解析操作"></el-step>
+				  </el-steps>
+				  <div style="margin-top:40px;">
+					  <div v-show="active == '0'">
+					     <el-form :model="selectForm" ref="selectForm" label-width="100px">
+					        <el-row>
+					          <el-col :span="8">&nbsp;</el-col>
+					          <el-col :span="8">
+					            <el-form-item label="数据库名" prop="database">
+								   <span>{{selectForm.database}}</span>
+								</el-form-item>
+					          </el-col>
+					          <el-col :span="8">&nbsp;</el-col>
+					        </el-row>
+					        <el-row>
+					          <el-col :span="8">&nbsp;</el-col>
+					          <el-col :span="8">
+					            <el-form-item label="表名称" prop="tablename">
+								   <el-select size="medium" v-model="selectForm.tablename" placeholder="请选择解析表名称">
+								      <el-option
+								        v-for="item in options"
+									    :key="item.value"
+									    :label="item.label"
+									    :value="item.value">
+								      </el-option>
+								   </el-select>
+								</el-form-item>
+					          </el-col>
+					          <el-col :span="8">&nbsp;</el-col>
+					        </el-row>
+					     </el-form>
+					  </div>
+					  <div v-show="active == '1'">2</div>
+					  <div v-show="active == '2'">3</div>
+					  <div v-show="active == '3'">4</div>
+				  </div>
+			   </div>
+	         </div>
+	     </el-main>
+      </el-container>
+   </div>
+   
+   <!-- JAVASCRIPT -->
+   <script type="text/javascript">
+      var vue = new Vue({
+    	  el: "#id_analysis",
+    	  data: {
+    		  url: '/api/analysis',
+    		  _id: '',
+    		  databaseURL: '',
+    		  database: '',
+    		  active: 0,
+    		  options: [{
+    			  label: 'apply_log', value:"apply_log"
+    		  }],
+    		  // 选择数据库表表单
+    		  selectForm: {
+    			  database: '',
+    			  tablename: ''
+    		  },
+    	  },
+    	  methods: {
+    		  init: function(){
+    			 var url = window.location.href;
+     			 this._id = url.substring(url.indexOf("=") + 1, url.indexOf("&"));
+     			 var database = url.substr(url.indexOf("&") + 2, url.length);
+     			 this.database = database.substr(database.indexOf("=") + 1, database.length);
+     			 this.selectForm.database = this.database;
+     			 
+     			 this.databaseURL = '/databases?id=' + this._id;
+    		  },
+    		  // 初始化数据库表名称
+    		  loadTables: function(){
+    			  var query = "id=" + this._id + "&database=" + this.database;
+    			  this.$http.get(this.url + "/load/tables?" + query)
+    			  .then((res) => {
+    				  console.log(res);
+    			  }),function(){
+    				  console.log('failed');
+ 	              	  this.$message.error('抱歉网络错误.请稍后重试.');
+    			  }
+    		  }
+    	  }
+      });
+      // 初始化数据
+      vue.init();
+      vue.loadTables();
+   </script>
+</body>
+</html>
