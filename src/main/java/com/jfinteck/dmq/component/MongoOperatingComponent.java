@@ -140,12 +140,7 @@ public class MongoOperatingComponent {
 			database = mongoClient.getDatabase(databaseName);
 		} catch (Exception e) {
 			log.error("Connection MongoDB is error：{}", e);
-		} finally {
-			// 关闭连接
-			if (mongoClient != null) {
-				mongoClient.close();
-			}
-		}
+		} 
 		return database;
 	}
 	

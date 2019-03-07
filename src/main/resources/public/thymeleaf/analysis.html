@@ -30,7 +30,7 @@
 		        <el-breadcrumb separator="/">
 		          <el-breadcrumb-item><a href="/index">服务列表</a></el-breadcrumb-item>
 		          <el-breadcrumb-item><a :href="databaseURL">数据库列表</a></el-breadcrumb-item>
-		          <el-breadcrumb-item>解析数据</el-breadcrumb-item>
+		          <el-breadcrumb-item>解析数据{{title}}</el-breadcrumb-item>
 		        </el-breadcrumb>
 	         </div>
 	         <!-- 面包屑 ./end -->
@@ -39,29 +39,27 @@
 	           <div style="margin: 50px auto; width: 1100px;">
 				  <el-steps :active="active" align-center finish-status="success">
 					 <el-step title="步骤 1" description="选择要解析的集合名称"></el-step>
-					 <el-step title="步骤 2" description="选择集合中药解析的字段名"></el-step>
+					 <el-step title="步骤 2" description="选择集合中要解析的字段名"></el-step>
 					 <el-step title="步骤 3" description="填写解析数据存放位置"></el-step>
 					 <el-step title="步骤 4" description="完成数据解析操作"></el-step>
 				  </el-steps>
 				  <div style="margin-top:40px;">
+				      <!-- 第一步骤 -->
 					  <div v-show="active == '0'">
-					     <el-form :model="selectForm" ref="selectForm" label-width="100px">
+					     <el-form :model="selectForm" :rules="selectRules" ref="selectForm" label-width="100px">
 					        <el-row>
-					          <el-col :span="8">&nbsp;</el-col>
-					          <el-col :span="8">
+					          <el-col :span="12" :offset="6">
 					            <el-form-item label="数据库名" prop="database">
-								   <span>{{selectForm.database}}</span>
+								   <span>{{selectForm.databaseName}}</span>
 								</el-form-item>
 					          </el-col>
-					          <el-col :span="8">&nbsp;</el-col>
 					        </el-row>
 					        <el-row>
-					          <el-col :span="8">&nbsp;</el-col>
-					          <el-col :span="8">
-					            <el-form-item label="表名称" prop="tablename">
-								   <el-select size="medium" v-model="selectForm.tablename" placeholder="请选择解析表名称">
+					          <el-col :span="12" :offset="6">
+					            <el-form-item label="集合名称" prop="tableName">
+								   <el-select filterable size="medium" v-model="selectForm.collName" placeholder="请选择解析集合名称" style="width:100%;">
 								      <el-option
-								        v-for="item in options"
+								        v-for="item in tableNames"
 									    :key="item.value"
 									    :label="item.label"
 									    :value="item.value">
@@ -69,11 +67,38 @@
 								   </el-select>
 								</el-form-item>
 					          </el-col>
-					          <el-col :span="8">&nbsp;</el-col>
+					        </el-row>
+					        <el-row>
+					          <el-col :span="12" :offset="6">
+					             <el-form-item label="过滤条件" prop="filter">
+					               <el-input v-model="selectForm.filter" placeholder="请输入过滤条件"></el-input>
+					             </el-form-item>
+					          </el-col>
+					        </el-row>
+					        <el-row style="margin-top:30px;"></el-row>
+					        <el-row>
+					          <el-col :span="12" :offset="6" style="text-align: center;">
+					            <el-button size="medium" type="primary" @click="handleSelect('selectForm')">下一步</el-button>
+					          </el-col>
 					        </el-row>
 					     </el-form>
 					  </div>
-					  <div v-show="active == '1'">2</div>
+					  <!-- 第二步骤 -->
+					  <div v-show="active == '1'">
+					     <el-form :model="fieldForm" :rules="fieldRules" ref="fieldForm" label-width="100px">
+					        <el-row>
+					          <el-col :span="12" :offset="6">
+					             
+					          </el-col>
+					        </el-row>
+					        <el-row>
+					          <el-col :span="12" :offset="6" style="text-align: center;">
+					            <el-button size="medium" @click="handleFirst('fieldForm')">上一步</el-button>
+					            <el-button size="medium" type="primary" @click="handleFields('fieldForm')">下一步</el-button>
+					          </el-col>
+					        </el-row>
+					     </el-form>
+					  </div>
 					  <div v-show="active == '2'">3</div>
 					  <div v-show="active == '3'">4</div>
 				  </div>
@@ -90,17 +115,33 @@
     	  data: {
     		  url: '/api/analysis',
     		  _id: '',
+    		  title: '（选择表名）',
     		  databaseURL: '',
     		  database: '',
     		  active: 0,
+    		  tableNames: [],
     		  options: [{
     			  label: 'apply_log', value:"apply_log"
     		  }],
     		  // 选择数据库表表单
     		  selectForm: {
-    			  database: '',
-    			  tablename: ''
+    			  serverId: '',
+    			  databaseName: '',
+    			  collName: '',
+    			  filterCondit: ''
     		  },
+    		  selectRules: {
+    			  collName: [{required: true, message: '请选择解析集合名称', trigger: 'blur'}]
+    		  },
+    		  // 选择字段名称
+    		  fieldForm: {
+    			  serverId: '',
+    			  databaseName: '',
+    			  tableName: ''
+    		  },
+    		  fieldRules: {
+    			  
+    		  }
     	  },
     	  methods: {
     		  init: function(){
@@ -108,7 +149,8 @@
      			 this._id = url.substring(url.indexOf("=") + 1, url.indexOf("&"));
      			 var database = url.substr(url.indexOf("&") + 2, url.length);
      			 this.database = database.substr(database.indexOf("=") + 1, database.length);
-     			 this.selectForm.database = this.database;
+     			 this.selectForm.databaseName = this.database;
+     			 this.selectForm.serverId = this._id;
      			 
      			 this.databaseURL = '/databases?id=' + this._id;
     		  },
@@ -117,10 +159,54 @@
     			  var query = "id=" + this._id + "&database=" + this.database;
     			  this.$http.get(this.url + "/load/tables?" + query)
     			  .then((res) => {
-    				  console.log(res);
+    				  this.tableNames = res.body.responseData;
     			  }),function(){
     				  console.log('failed');
  	              	  this.$message.error('抱歉网络错误.请稍后重试.');
+    			  }
+    		  },
+    		  // 第一步单击事件
+    		  handleSelect: function(formName){
+    			  var that = this;
+    			  this.$refs[formName].validate((valid) => {
+    				  if( valid ){
+    					  that.$http.post(that.url + "/update/analysis", that.selectForm)
+    					  .then((res) => {
+    						  var body = res.body;
+    						  if( body.code == "00000" ){
+    							  that.active = 1;
+    							  that.title = "（集合字段）";
+    							  
+    							  // 参数赋值
+    							  that.fieldForm.serverId = that.selectForm.serverId;
+    							  that.fieldForm.databaseName = that.selectForm.databaseName;
+    							  that.fieldForm.tableName = that.selectForm.collName;
+    						  }else{
+    							  this.$message.error('抱歉操作异常，请稍后重试.');
+    						  }
+    					  }),function(){
+    						  this.$message.error('抱歉网络错误.请稍后重试.');
+    					  }
+    				  }else{
+    					  return ;
+    				  }
+    			  });
+    		  },
+    		  // 第二步骤：上一步
+    		  handleFirst: function(formName){
+    			  // 重置表单
+    			  this.$refs[formName].resetFields();
+    			  that.active = 0;
+				  that.title = "（选择表名）";
+    		  },
+    		  // 第二步骤：下一步
+    		  handleFields: function(formName){
+    			  
+    			  this.$http.post(this.url + "/insert/collname", this.fieldForm)
+    			  .then((res) => {
+    				  console.log(res);
+    			  }),function(){
+    				  this.$message.error('抱歉网络错误.请稍后重试.');
     			  }
     		  }
     	  }

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jfinteck.dmq.mapper.MongodbTableNameMapper">
+
+    <!-- 表字段名称 -->
+    <sql id="baseTableSQL">
+      `id`, `server_id`, `database_name`, `table_name`, `flag`, `is_analysis`, `filter_condit`
+    </sql>
+
+    <!-- 表字段映射 -->
+    <resultMap id="BaseResultMap" type="com.jfinteck.dmq.dto.MongodbTableName">
+      <id column="id" property="id" javaType="java.lang.Long" />
+      <result column="server_id" property="serverId" javaType="java.lang.Long"/>
+      <result column="database_name" property="databaseName" javaType="java.lang.String"/>
+      <result column="table_name" property="tableName" javaType="java.lang.String"/>
+      <result column="flag" property="flag" javaType="java.lang.String"/>
+      <result column="is_analysis" property="isAnalysis" javaType="java.lang.String"/>
+      <result column="filter_condit" property="filterCondit" javaType="java.lang.String"/>
+   </resultMap>
+   
+   <!-- 获取解析表名称 -->
+   <select id="selectTableByServerIdAndDatabaseName" resultType="com.jfinteck.dmq.dto.BaseDTO">
+      select table_name label,
+             table_name value
+        from tb_mongodb_sync_table
+       where server_id = #{serverId}
+         and database_name = #{databaseName}
+       order by id desc, is_analysis asc
+   </select>
+   
+   <!-- 修改表是否解析状态值 -->
+   <update id="updateTableIsAnalysis">
+      update tb_mongodb_sync_table 
+         set is_analysis = #{isAnalysis},
+             filter_condit = #{filterCondit}
+       where server_id = #{serverId}
+         and database_name = #{databaseName}
+         and table_name = #{tableName}
+   </update>
+   
+</mapper>

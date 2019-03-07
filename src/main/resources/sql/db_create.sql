@@ -6,20 +6,6 @@ use db_mongo;
 
 SET FOREIGN_KEY_CHECKS=0;
 
--- 创建表
-DROP TABLE IF EXISTS `manager_project`;
-CREATE TABLE `manager_project` (
-  `id`				bigint(20) unsigned		NOT NULL AUTO_INCREMENT		COMMENT '项目id',
-  `project_name`	varchar(50)				NOT NULL	DEFAULT ''		COMMENT '项目名',
-  `project_remark`	varchar(2000) 						DEFAULT ''		COMMENT '项目描述',
-  `in_explain`		varchar(2000) 						DEFAULT ''		COMMENT '接口说明',
-  `operator`		varchar(50) 			NOT NULL	DEFAULT ''		COMMENT '创建人',
-  `state`			tinyint(3) unsigned		NOT NULL	DEFAULT '0'		COMMENT '0-启用 1-禁用',
-  `create_time`		datetime				NOT NULL	DEFAULT  NOW()				COMMENT '创建时间',
-  `update_time`		datetime							DEFAULT NOW()	COMMENT '修改时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='项目信息表';
-
 -- 连接MongoDB的服务表
 DROP TABLE IF EXISTS `tb_mongodb_server`;
 CREATE TABLE `tb_mongodb_server` (
@@ -38,18 +24,34 @@ CREATE TABLE `tb_mongodb_server` (
 -- 测试数据
 -- INSERT INTO tb_mongodb_server (host, port, username, password, tags) VALUES('localhost', '27017', null, null, '测试监控MongoDB服务');
 
--- 需要监控数据库表
+-- 数据库表名称
 DROP TABLE IF EXISTS `tb_mongodb_sync_table`;
 CREATE TABLE `tb_mongodb_sync_table` (
-   `id`  int NOT NULL AUTO_INCREMENT COMMENT '编号',
-   `server_id` int NOT NULL COMMENT 'mongoDB Server 编号',
-   `table_name`  varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '表名称',
-   `prefix_name` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '前缀名称',
-   `flag`  varchar(1) COLLATE utf8_unicode_ci DEFAULT '1' COMMENT '1-可用,0-不可用',
-   `create_time`  datetime DEFAULT NOW() COMMENT '创建日期',
-   `update_time`  datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日期',
+   `id`             int NOT NULL AUTO_INCREMENT COMMENT '编号',
+   `server_id`      int NOT NULL COMMENT 'mongoDB Server 编号',
+   `database_name`  varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '数据库名称',
+   `table_name`     varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '表名称',
+   `flag`           varchar(1) COLLATE utf8_unicode_ci DEFAULT '1' COMMENT '1-可用,0-不可用',
+   `is_analysis`    varchar(1) COLLATE utf8_unicode_ci DEFAULT '0' COMMENT '1-解析,0-不解析',
+   `filter_condit`  varchar(256) COLLATE utf8_unicode_ci COMMENT '过滤条件',
+   `create_time`    datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
+   `update_time`    datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日期',
    PRIMARY KEY (`id`)
-)ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='监控数据库表';
+)ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='数据库表名称';
+
+
+-- 保留表字段名
+DROP TABLE IF EXISTS `tb_mongodb_field_name`;
+CREATE TABLE `tb_mongodb_field_name` (
+    `id`             int NOT NULL AUTO_INCREMENT COMMENT '编号',
+    `table_id`       int NOT NULL COMMENT '解析表ID编号',
+    `field_name`     varchar(30) COLLATE utf8_unicode_ci NOT NULL COMMENT '字段名称',
+    `type`           varchar(20) COLLATE utf8_unicode_ci DEFAULT 'varchar(64)' COMMENT '字段类型',
+    `primary`        varchar(1) COLLATE utf8_unicode_ci DEFAULT '0' COMMENT '是否主键：1-是,0-不是',
+    `create_time`    datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
+    `update_time`    datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日期',
+    PRIMARY KEY (`id`)
+)ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='保留表字段名';
 
 -- mongodb执行详情
 DROP TABLE IF EXISTS `tb_mongodb_top_history`;

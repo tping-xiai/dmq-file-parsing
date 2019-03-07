@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jfinteck.dmq.mapper.MongodbFieldNameMapper">
+
+    <resultMap id="BaseResultMap" type="com.jfinteck.dmq.dto.MongodbFieldName">
+       <id column="id" property="id" javaType="java.lang.Long" />
+       <result column="table_id" property="tableId" javaType="java.lang.Long" />
+       <result column="field_name" property="fieldName" javaType="java.lang.String" />
+       <result column="type" property="type" javaType="java.lang.String" />
+       <result column="primary" property="primary" javaType="java.lang.String" />
+    </resultMap>
+    
+    
+</mapper>

@@ -4,7 +4,8 @@ public class TestMain {
 
 	public static void main(String[] args) {
 		String perfix = "admin.system.version";
-		System.out.println(perfix.startsWith("admin"));
-		System.out.println(perfix.endsWith("version"));
+		System.out.println(perfix.startsWith("admin."));
+		
+		System.out.println(perfix.substring("admin.".length(), perfix.length()));
 	}
 }
