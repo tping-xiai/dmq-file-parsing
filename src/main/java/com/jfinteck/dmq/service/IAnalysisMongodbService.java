@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jfinteck.dmq.dto.BaseDTO;
 import com.jfinteck.dmq.dto.MongodbTableName;
+import com.jfinteck.dmq.vo.AnalysisMongodbVo;
 
 public interface IAnalysisMongodbService {
 
@@ -23,4 +24,13 @@ public interface IAnalysisMongodbService {
 	 * @return
 	 */
 	List<String> getConllectonNames(MongodbTableName tableName);
+
+	/**
+	 * 记录要解析集合字段名称
+	 * 
+	 * @param analysisVo
+	 * @return 集合编号ID
+	 */
+	Long saveAnalysisColletionName(AnalysisMongodbVo analysisVo);
+
 }

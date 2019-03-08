@@ -1,9 +1,12 @@
 package com.jfinteck.dmq.vo;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+
+import com.jfinteck.dmq.dto.MongodbFieldName;
 
 import lombok.Data;
 
@@ -20,5 +23,10 @@ public class AnalysisMongodbVo implements Serializable{
 	// 集合名称
 	private String collName;
 	// 过滤条件
-	private String filter;
+	private String filterCondit;
+	// 字段名称
+	private String field;
+	
+	
+	private List<MongodbFieldName> fieldProperty;
 }

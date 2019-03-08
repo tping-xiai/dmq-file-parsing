@@ -4,7 +4,7 @@
 
     <!-- 表字段名称 -->
     <sql id="baseTableSQL">
-      `id`, `server_id`, `database_name`, `table_name`, `flag`, `is_analysis`, `filter_condit`
+      `id`, `server_id`, `database_name`, `coll_name`, `flag`, `is_analysis`, `filter_condit`
     </sql>
 
     <!-- 表字段映射 -->
@@ -12,7 +12,7 @@
       <id column="id" property="id" javaType="java.lang.Long" />
       <result column="server_id" property="serverId" javaType="java.lang.Long"/>
       <result column="database_name" property="databaseName" javaType="java.lang.String"/>
-      <result column="table_name" property="tableName" javaType="java.lang.String"/>
+      <result column="coll_name" property="collName" javaType="java.lang.String"/>
       <result column="flag" property="flag" javaType="java.lang.String"/>
       <result column="is_analysis" property="isAnalysis" javaType="java.lang.String"/>
       <result column="filter_condit" property="filterCondit" javaType="java.lang.String"/>
@@ -20,12 +20,12 @@
    
    <!-- 获取解析表名称 -->
    <select id="selectTableByServerIdAndDatabaseName" resultType="com.jfinteck.dmq.dto.BaseDTO">
-      select table_name label,
-             table_name value
+      select coll_name label,
+             coll_name value
         from tb_mongodb_sync_table
        where server_id = #{serverId}
          and database_name = #{databaseName}
-       order by id desc, is_analysis asc
+       order by coll_name asc
    </select>
    
    <!-- 修改表是否解析状态值 -->
@@ -35,7 +35,7 @@
              filter_condit = #{filterCondit}
        where server_id = #{serverId}
          and database_name = #{databaseName}
-         and table_name = #{tableName}
+         and coll_name = #{collName}
    </update>
    
 </mapper>

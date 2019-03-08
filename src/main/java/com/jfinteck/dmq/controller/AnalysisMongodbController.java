@@ -1,14 +1,16 @@
 package com.jfinteck.dmq.controller;
 
-import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.websocket.server.PathParam;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +22,10 @@ import com.jfinteck.dmq.core.comm.ResultBean;
 import com.jfinteck.dmq.core.enums.ErrorEnum;
 import com.jfinteck.dmq.core.utils.ValidatorUtil;
 import com.jfinteck.dmq.dto.BaseDTO;
+import com.jfinteck.dmq.dto.MongodbFieldName;
 import com.jfinteck.dmq.dto.MongodbTableName;
 import com.jfinteck.dmq.service.IAnalysisMongodbService;
+import com.jfinteck.dmq.service.IMongodbFieldNameService;
 import com.jfinteck.dmq.service.IMongodbTableNameService;
 import com.jfinteck.dmq.vo.AnalysisMongodbVo;
 
@@ -44,9 +48,10 @@ public class AnalysisMongodbController {
 
 	@Autowired
 	private IAnalysisMongodbService analysisMongodbService;
-	
 	@Autowired
 	private IMongodbTableNameService mongodbTableNameService;
+	@Autowired
+	private IMongodbFieldNameService mongodbFieldNameService; 
 	
 	@ApiOperation(value="获取指定数据库中所有表名称")
 	@GetMapping("/load/tables")
@@ -77,19 +82,35 @@ public class AnalysisMongodbController {
 		
 		// 对象属性值赋值
 		MongodbTableName tableName = new MongodbTableName();
-		try {
-			BeanUtils.copyProperties(tableName, analysisVo);
-			tableName.setTableName(analysisVo.getCollName());
-		} catch (IllegalAccessException | InvocationTargetException e) {
-			log.error("[AnalysisMongodbVo]对象属性赋值给[MongodbTableName]属性使用BeanUtils.copyProperties方法抛出异常.", e);
-		}
+		BeanUtils.copyProperties(analysisVo, tableName);
+		
 		tableName.setIsAnalysis(ManagerInterfaceComm.DEFAULT_TRUE);
 		mongodbTableNameService.updateTableIsAnalysis(tableName);
 		return new ResultBean.Builder<String>().build(ErrorEnum.SUCCESS);
 	}
 	
+	@ApiOperation(value="获取集合字段名称")
+	@PostMapping("/load-fields")
+	public ResultBean<List<String>> getFieldNames(@RequestBody AnalysisMongodbVo analysisVo){
+		
+		log.info("request data param: {}", JSON.toJSONString(analysisVo));
+		
+		// 参数校验
+		if( ValidatorUtil.hasError(analysisVo) || StringUtils.isEmpty(analysisVo.getCollName()) ){
+			return new ResultBean.Builder<List<String>>().build(ErrorEnum.VALIDATE_EXCEPTION);
+		}
+		
+		MongodbTableName tableName = new MongodbTableName();
+		BeanUtils.copyProperties(analysisVo, tableName);
+		
+		// 获取指定集合字段名称
+		List<String> fields = analysisMongodbService.getConllectonNames(tableName);
+		
+		return new ResultBean.Builder<List<String>>().build(ErrorEnum.SUCCESS, fields);
+	}
+	
 	@ApiOperation(value="记录解析集合字段名称")
-	@PostMapping("/insert/collname")
+	@PostMapping("/insert-coll-name")
 	public ResultBean<String> saveCollName(@RequestBody AnalysisMongodbVo analysisVo){
 		
 		log.info("request data param: {}", JSON.toJSONString(analysisVo));
@@ -97,8 +118,37 @@ public class AnalysisMongodbController {
 		if( ValidatorUtil.hasError(analysisVo) || StringUtils.isEmpty(analysisVo.getCollName()) ) {
 			return new ResultBean.Builder<String>().build(ErrorEnum.VALIDATE_EXCEPTION);
 		}
-		//List<String> collNames = analysisMongodbService.getConllectonNames(analysisVo);
 		
+		if( StringUtils.isEmpty(analysisVo.getField()) ) {
+			return new ResultBean.Builder<String>().buildSucceed("参数缺失，请选择要解析集合字段名称.");
+		}
+		
+		Long id = analysisMongodbService.saveAnalysisColletionName(analysisVo);
+		
+		return new ResultBean.Builder<String>().build(ErrorEnum.SUCCESS, String.valueOf(id));
+	}
+	
+	@ApiOperation(value="获取创建表字段名称")
+	@GetMapping("/load-table-fields/{id}")
+	public ResultBean<List<MongodbFieldName>> loadFields(@PathVariable("id") Long tableId){
+		
+		log.info("request data param: {id = {}}", tableId);
+		Map<String, Object> columnMap = new HashMap<String, Object>();
+		columnMap.put("table_id", tableId);
+		List<MongodbFieldName> fieldNames = mongodbFieldNameService.selectByMap(columnMap);
+		return new ResultBean.Builder<List<MongodbFieldName>>().build(ErrorEnum.SUCCESS, fieldNames);
+	}
+	
+	@ApiOperation(value="确定创建表字段", notes="对已经选择要解析字段，确定是否有嵌套字段与是否要解密操作")
+	@PostMapping("/confirm-field-property")
+	public ResultBean<String> confirmFields(@RequestBody AnalysisMongodbVo analysisVo){
+		
+		log.info("request data param: {}", JSON.toJSONString(analysisVo));
+		
+		// 确认字段属性值
+		if( analysisVo.getFieldProperty() != null || !analysisVo.getFieldProperty().isEmpty() ) {
+			mongodbFieldNameService.updateBatchById(analysisVo.getFieldProperty());
+		}
 		return new ResultBean.Builder<String>().build(ErrorEnum.SUCCESS);
 	}
 	

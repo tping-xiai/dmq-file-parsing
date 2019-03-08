@@ -7,7 +7,8 @@
        <result column="table_id" property="tableId" javaType="java.lang.Long" />
        <result column="field_name" property="fieldName" javaType="java.lang.String" />
        <result column="type" property="type" javaType="java.lang.String" />
-       <result column="primary" property="primary" javaType="java.lang.String" />
+       <result column="nest" property="nest" javaType="java.lang.String" />
+       <result column="decryption" property="decryption" javaType="java.lang.String" />
     </resultMap>
     
     

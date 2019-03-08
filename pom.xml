@@ -188,9 +188,9 @@
 		</dependency>
 		<!-- JF 加解密jar -->
 		<dependency>
-			<groupId>com.jfpal</groupId>
-			<artifactId>security</artifactId>
-			<version>0.3</version>
+			<groupId>com.jfpal.security</groupId>
+			<artifactId>finance-security</artifactId>
+			<version>1.0.0.release</version>
 		</dependency>
 
 		<dependency>

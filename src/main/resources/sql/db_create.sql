@@ -24,20 +24,20 @@ CREATE TABLE `tb_mongodb_server` (
 -- 测试数据
 -- INSERT INTO tb_mongodb_server (host, port, username, password, tags) VALUES('localhost', '27017', null, null, '测试监控MongoDB服务');
 
--- 数据库表名称
+-- 数据库集合名称
 DROP TABLE IF EXISTS `tb_mongodb_sync_table`;
 CREATE TABLE `tb_mongodb_sync_table` (
    `id`             int NOT NULL AUTO_INCREMENT COMMENT '编号',
    `server_id`      int NOT NULL COMMENT 'mongoDB Server 编号',
    `database_name`  varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '数据库名称',
-   `table_name`     varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '表名称',
+   `coll_name`      varchar(50) COLLATE utf8_unicode_ci NOT NULL COMMENT '集合名称',
    `flag`           varchar(1) COLLATE utf8_unicode_ci DEFAULT '1' COMMENT '1-可用,0-不可用',
    `is_analysis`    varchar(1) COLLATE utf8_unicode_ci DEFAULT '0' COMMENT '1-解析,0-不解析',
    `filter_condit`  varchar(256) COLLATE utf8_unicode_ci COMMENT '过滤条件',
    `create_time`    datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
    `update_time`    datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日期',
    PRIMARY KEY (`id`)
-)ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='数据库表名称';
+)ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='数据库集合名称';
 
 
 -- 保留表字段名
@@ -46,12 +46,14 @@ CREATE TABLE `tb_mongodb_field_name` (
     `id`             int NOT NULL AUTO_INCREMENT COMMENT '编号',
     `table_id`       int NOT NULL COMMENT '解析表ID编号',
     `field_name`     varchar(30) COLLATE utf8_unicode_ci NOT NULL COMMENT '字段名称',
-    `type`           varchar(20) COLLATE utf8_unicode_ci DEFAULT 'varchar(64)' COMMENT '字段类型',
-    `primary`        varchar(1) COLLATE utf8_unicode_ci DEFAULT '0' COMMENT '是否主键：1-是,0-不是',
+    `type`           varchar(20) COLLATE utf8_unicode_ci DEFAULT 'varchar(128)' COMMENT '字段类型',
+    `nest`           varchar(1) COLLATE utf8_unicode_ci DEFAULT '0' COMMENT '是否有嵌套文档：1-是,0-不是',
+    `decryption`     varchar(1) COLLATE utf8_unicode_ci DEFAULT '0' COMMENT '是否要解密：1-是,0-不是',
     `create_time`    datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
     `update_time`    datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日期',
     PRIMARY KEY (`id`)
 )ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='保留表字段名';
+
 
 -- mongodb执行详情
 DROP TABLE IF EXISTS `tb_mongodb_top_history`;

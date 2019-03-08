@@ -49,7 +49,7 @@
 					     <el-form :model="selectForm" :rules="selectRules" ref="selectForm" label-width="100px">
 					        <el-row>
 					          <el-col :span="12" :offset="6">
-					            <el-form-item label="数据库名" prop="database">
+					            <el-form-item label="数据库名">
 								   <span>{{selectForm.databaseName}}</span>
 								</el-form-item>
 					          </el-col>
@@ -71,7 +71,7 @@
 					        <el-row>
 					          <el-col :span="12" :offset="6">
 					             <el-form-item label="过滤条件" prop="filter">
-					               <el-input v-model="selectForm.filter" placeholder="请输入过滤条件"></el-input>
+					               <el-input v-model="selectForm.filterCondit" placeholder="请输入过滤条件"></el-input>
 					             </el-form-item>
 					          </el-col>
 					        </el-row>
@@ -87,8 +87,32 @@
 					  <div v-show="active == '1'">
 					     <el-form :model="fieldForm" :rules="fieldRules" ref="fieldForm" label-width="100px">
 					        <el-row>
-					          <el-col :span="12" :offset="6">
-					             
+					           <el-col :span="16" :offset="4">
+					              <el-form-item label="数据库名" prop="databaseName">
+								     <el-tag>{{selectForm.databaseName}}</el-tag>
+								  </el-form-item>
+					           </el-col>
+					        </el-row>
+					        <el-row>
+					           <el-col :span="16" :offset="4">
+					              <el-form-item label="集合名称" prop="collName">
+								     <el-tag>{{fieldForm.collName}}</el-tag>
+								  </el-form-item>
+					           </el-col>
+					        </el-row>
+					        <el-row>
+					          <el-col :span="16" :offset="4">
+					             <el-form-item label="集合名称" prop="fields">
+					                <el-transfer
+						                :titles="['集合字段名', '解析字段名']"
+									    filterable
+									    :filter-method="filterMethod"
+									    filter-placeholder="请输入解析字段名称"
+									    :format="{noChecked: '${total}', hasChecked: '${checked}/${total}'}"
+									    v-model="fieldForm.fields"
+									    :data="tempFilters">
+								 </el-transfer>
+					             </el-form-item>
 					          </el-col>
 					        </el-row>
 					        <el-row>
@@ -98,13 +122,58 @@
 					          </el-col>
 					        </el-row>
 					     </el-form>
+					     
+					     <!-- 注意事项 -->
+					     <div class="warning">
+					        <h4>温馨提示：</h4>
+					        <p>1、文档节点可能存在嵌套文档节点的存在.</p>
+					        <p>2、若选中的字段为嵌套节点时，则默认该节点下的所有字段将被解析出来.</p>
+					     </div>
 					  </div>
-					  <div v-show="active == '2'">3</div>
+					  <div v-show="active == '2'">
+					     <el-form :model="tableForm" ref="tableForm" label-width="100px">
+					        <el-row>
+					          <el-col :span="20" :offset="2">
+					            <div style="font-weight: bold;font-size: 15px;padding-bottom: 10px;">确认创建表信息</div>
+					            <el-table border :data="tableFieldsData" style="width: 100%">
+					               <el-table-column prop="fieldName" label="字段名称"></el-table-column>
+					               <el-table-column prop="type" label="类型" width="160"></el-table-column>
+					               <el-table-column label="是否是嵌套文档字段">
+					                  <template slot-scope="scope">
+					                     <el-checkbox @change="checked => changeCheckBoxNest(checked, scope.$index, scope.row)">嵌套文档</el-checkbox>
+					                  </template>
+					               </el-table-column>
+					               <el-table-column label="是否要解密" width="140">
+					                  <template slot-scope="scope">
+					                     <el-checkbox @change="checked => changeCheckBoxDecryption(checked, scope.$index, scope.row)">解密</el-checkbox>
+					                  </template>
+					               </el-table-column>
+					            </el-table>
+					          </el-col>
+					        </el-row>
+					        <el-row>
+					          <el-col :span="12" :offset="6" style="text-align: center;margin-top:30px;">
+					            <el-button size="medium" @click="handleSecond('tableForm')">上一步</el-button>
+					            <el-button size="medium" type="primary" @click="handleCreateTable('tableForm')">下一步</el-button>
+					          </el-col>
+					        </el-row>
+					     </el-form>
+					     <!-- 注意事项 -->
+					     <div class="warning">
+					        <h4>温馨提示：</h4>
+					        <p>1、文档节点可能存在嵌套文档节点的存在.</p>
+					        <p>2、若文档节点需要解密，请选择需要解密的选项.</p>
+					        <p>3、创建表时，则默认给一个自增ID编号</p>
+					     </div>
+					  </div>
 					  <div v-show="active == '3'">4</div>
 				  </div>
 			   </div>
 	         </div>
 	     </el-main>
+	     <!-- footer ./start -->
+	     <el-footer><p style="text-align: center;">@2019 深圳市前海即富信息技术金融服务有限公司</p></el-footer>
+	     <!-- fotter ./end -->
       </el-container>
    </div>
    
@@ -117,12 +186,8 @@
     		  _id: '',
     		  title: '（选择表名）',
     		  databaseURL: '',
-    		  database: '',
     		  active: 0,
     		  tableNames: [],
-    		  options: [{
-    			  label: 'apply_log', value:"apply_log"
-    		  }],
     		  // 选择数据库表表单
     		  selectForm: {
     			  serverId: '',
@@ -137,10 +202,19 @@
     		  fieldForm: {
     			  serverId: '',
     			  databaseName: '',
-    			  tableName: ''
+    			  collName: '',
+    			  fields: [],
+    			  field: ''
     		  },
+    		  // 集合字段名称（原数据）
+    		  tempFilters: [],
     		  fieldRules: {
-    			  
+    			  fields: [{type: 'array', required: true, message: '请选择解析字段名称', trigger: 'blur'}]
+    		  },
+    		  // 创建数据库表名称
+    		  tableFieldsData: [],
+    		  tableForm: {
+    			  fieldProperty: []
     		  }
     	  },
     	  methods: {
@@ -148,15 +222,14 @@
     			 var url = window.location.href;
      			 this._id = url.substring(url.indexOf("=") + 1, url.indexOf("&"));
      			 var database = url.substr(url.indexOf("&") + 2, url.length);
-     			 this.database = database.substr(database.indexOf("=") + 1, database.length);
-     			 this.selectForm.databaseName = this.database;
+     			 this.selectForm.databaseName = database.substr(database.indexOf("=") + 1, database.length);
      			 this.selectForm.serverId = this._id;
      			 
      			 this.databaseURL = '/databases?id=' + this._id;
     		  },
     		  // 初始化数据库表名称
     		  loadTables: function(){
-    			  var query = "id=" + this._id + "&database=" + this.database;
+    			  var query = "id=" + this._id + "&database=" + this.selectForm.databaseName;
     			  this.$http.get(this.url + "/load/tables?" + query)
     			  .then((res) => {
     				  this.tableNames = res.body.responseData;
@@ -177,10 +250,8 @@
     							  that.active = 1;
     							  that.title = "（集合字段）";
     							  
-    							  // 参数赋值
-    							  that.fieldForm.serverId = that.selectForm.serverId;
-    							  that.fieldForm.databaseName = that.selectForm.databaseName;
-    							  that.fieldForm.tableName = that.selectForm.collName;
+    							  // 获取集合字段名称
+    							  that.loadFields(that.selectForm);
     						  }else{
     							  this.$message.error('抱歉操作异常，请稍后重试.');
     						  }
@@ -196,15 +267,130 @@
     		  handleFirst: function(formName){
     			  // 重置表单
     			  this.$refs[formName].resetFields();
-    			  that.active = 0;
-				  that.title = "（选择表名）";
+    			  this.active = 0;
+    			  this.title = "（选择表名）";
     		  },
     		  // 第二步骤：下一步
     		  handleFields: function(formName){
-    			  
-    			  this.$http.post(this.url + "/insert/collname", this.fieldForm)
+    			  var that = this;
+    			  this.$refs[formName].validate((valid) => {
+    				  if( valid ){
+    					  that.fieldForm.field =  that.fieldForm.fields.join(',');
+    					  that.$http.post(that.url + "/insert-coll-name", that.fieldForm)
+    	    			  .then((res) => {
+    	    				  var body = res.body;
+    	    				  if( body.code == "00000" ){
+    	    					  that.active = 2;
+    							  that.title = "（确认表字段）";
+    							  
+    							  that.loadTableFields(body.responseData);
+    	    				  }else{
+    	    					  this.$message.error('第三步骤保存解析集合字段名称失败.');
+    	    				  }
+    	    			  }),function(){
+    	    				  this.$message.error('抱歉网络错误.请稍后重试.');
+    	    			  }
+    				  }
+    			  });
+    		  },
+    		  // 获取表字段名称
+    		  loadFields: function(form){
+    			  this.fieldForm.serverId = form.serverId;
+    			  this.fieldForm.databaseName = form.databaseName;
+    			  this.fieldForm.collName = form.collName;
+    			  // 清空选择框
+    			  this.tempFilters = [];
+    			  this.$http.post(this.url + "/load-fields", this.fieldForm)
     			  .then((res) => {
-    				  console.log(res);
+    				  console.log(res)
+    				  var body = res.body;
+    				  if( body.code == "00000" ){
+    					  var fieldNames = body.responseData;
+    					  fieldNames.forEach((field, index) => {
+    						  this.tempFilters.push({
+    	    					  label: field,
+    	    			          key: field,
+    	    			          fieldName: fieldNames[index]
+    	    				  });
+    					  });
+    				  }else{
+    					  this.$message.error('初始化集合字段名称失败.');
+    				  }
+    			  }),function(){
+    				  this.$message.error('抱歉网络错误.请稍后重试.');
+    			  }
+    		  },
+    		  // 穿梭框过滤事件方法
+    		  filterMethod: function(query, item){
+    			  return item.fieldName.indexOf(query) > -1;
+    		  },
+    		  // 加载要确定创建表字段名称
+    		  loadTableFields: function(id){
+    			  this.$http.get(this.url + "/load-table-fields/" + id)
+    			  .then((res) => {
+    				  var body = res.body;
+    				  if( body.code == "00000" ){
+    					  this.tableFieldsData = body.responseData;
+    				  }else{
+    					  this.$message.error('第三步骤加载确定创建数据库表字段信息失败.');
+    				  }
+    			  }),function(){
+    				  this.$message.error('抱歉网络错误.请稍后重试.');
+    			  }
+    		  },
+    		  changeCheckBoxNest: function(checked, index, row){
+    			  var _index;
+    			  this.tableForm.fieldProperty.forEach((val, index) => {
+					  if( row.id === val.id ){
+						  _index = index;
+					  }
+				  });
+    			  if( _index != undefined ){
+    				  this.tableForm.fieldProperty[_index].nest = checked ? '1' : '0'
+    			  }else{
+    				  this.tableForm.fieldProperty.push({
+    					  id: row.id,
+    					  nest: checked ? '1' : '0',
+    					  decryption: '0'
+        			  });
+    			  }
+    		  },
+    		  changeCheckBoxDecryption: function(checked, index, row){
+    			  var _index;
+    			  this.tableForm.fieldProperty.forEach((val, index) => {
+					  if( row.id === val.id ){
+						  _index = index;
+					  }
+				  });
+    			  if( _index != undefined ){
+    				  this.tableForm.fieldProperty[_index].decryption = checked ? '1' : '0'
+    			  }else{
+    				  this.tableForm.fieldProperty.push({
+    					  id: row.id,
+    					  nest: '0',
+    					  decryption: checked ? '1' : '0'
+        			  });
+    			  }
+    		  },
+    		  // 第三步骤:上一步
+    		  handleSecond: function(formName){
+    			// 重置表单
+    			this.$refs[formName].resetFields();
+    			this.active = 1;
+    			this.title = "（集合字段）";
+    		  },
+    		  // 第三步骤：下一步
+    		  handleCreateTable: function(formName){
+    			  
+    			  this.$http.post(this.url + "/confirm-field-property", this.tableForm)
+    			  .then((res) => {
+    				  var body = res.body;
+    				  if( body.code == "00000" ){
+    					  this.active = 3;
+    					  this.title = "（解析详情）";
+    				  }else{
+    					  this.$message.error('确认操作失败.');
+    				  }
     			  }),function(){
     				  this.$message.error('抱歉网络错误.请稍后重试.');
     			  }

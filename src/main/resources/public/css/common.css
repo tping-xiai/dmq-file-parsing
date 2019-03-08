@@ -1,4 +1,4 @@
-body{padding: 0;margin: 0;font-family: 'Î¢ÈíÑÅºÚ';}
+body{padding: 0;margin: 0;font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Î¢ÈíÑÅºÚ",Arial,sans-serif;}
 
 .el-header{padding: 0px!important;}
 .el-menu-demo{padding:0 10px!important;}
@@ -17,3 +17,14 @@ body{padding: 0;margin: 0;font-family: 'Î¢ÈíÑÅºÚ';}
 a:link{text-decoration: none;}
 a:hover{text-decoration: none;}
 a:visited {text-decoration: none;}
+
+.warning {
+	margin-top:20px;
+	padding: 5px 20px;
+	border-radius: 5px;
+	border-left: 5px solid #FE6C6F;
+	background-color: #FFF6F7;
+	color: #5E6D82;
+}
+.warning h4{font-size: 16px; line-height: 15px!important;}
+.warning p{font-size: 14px;line-height: 10px!important;}

@@ -44,8 +44,8 @@ public class MongodbTableName extends Model<MongodbTableName>{
 	/**
 	 * 表名称
 	 */
-	@TableField(value="table_name")
-	private String tableName;
+	@TableField(value="coll_name")
+	private String collName;
 	
 	/**
 	 * 标识：1-可用，0-不可用
@@ -65,7 +65,7 @@ public class MongodbTableName extends Model<MongodbTableName>{
 	private String filterCondit;
 	
 	public MongodbTableName clone() {
-		return new MongodbTableName(this.id, this.serverId, this.databaseName, this.tableName, this.flag, this.isAnalysis, this.filterCondit);
+		return new MongodbTableName(this.id, this.serverId, this.databaseName, this.collName, this.flag, this.isAnalysis, this.filterCondit);
 	}
 	
 	@Override

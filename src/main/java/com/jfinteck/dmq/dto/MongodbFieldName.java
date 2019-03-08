@@ -43,13 +43,22 @@ public class MongodbFieldName extends Model<MongodbFieldName>{
 	private String type;
 	
 	/**
-	 * 是否主键：1-是,0-不是
+	 * 是否有嵌套文档：1-是,0-不是
 	 */
-	private String primary;
+	private String nest;
+	
+	/**
+	 * 是否要解密：1-是，0-不是
+	 */
+	private String decryption;
+	
+	public MongodbFieldName(Long tableId, String fieldName) {
+		this.tableId = tableId;
+		this.fieldName = fieldName;
+	}
 	
 	@Override
 	protected Serializable pkVal() {
 		return this.id;
 	}
-
 }
