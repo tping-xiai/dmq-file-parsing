@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
-import com.jfinteck.dmq.comm.ManagerInterfaceComm;
+import com.jfinteck.dmq.core.comm.DefaultComm;
 import com.jfinteck.dmq.core.comm.ResultBean;
 import com.jfinteck.dmq.core.enums.ErrorEnum;
 import com.jfinteck.dmq.core.utils.ValidatorUtil;
@@ -26,6 +26,7 @@ import com.jfinteck.dmq.dto.MongodbFieldName;
 import com.jfinteck.dmq.dto.MongodbTableName;
 import com.jfinteck.dmq.service.IAnalysisMongodbService;
 import com.jfinteck.dmq.service.IMongodbFieldNameService;
+import com.jfinteck.dmq.service.IMongodbServerService;
 import com.jfinteck.dmq.service.IMongodbTableNameService;
 import com.jfinteck.dmq.vo.AnalysisMongodbVo;
 
@@ -46,6 +47,8 @@ import lombok.extern.slf4j.Slf4j;
 @Api(tags="api-analysis-controller", description="解析指定MongoDB数据库数据")
 public class AnalysisMongodbController {
 
+	@Autowired
+	private IMongodbServerService mongodbServerService;
 	@Autowired
 	private IAnalysisMongodbService analysisMongodbService;
 	@Autowired
@@ -84,7 +87,7 @@ public class AnalysisMongodbController {
 		MongodbTableName tableName = new MongodbTableName();
 		BeanUtils.copyProperties(analysisVo, tableName);
 		
-		tableName.setIsAnalysis(ManagerInterfaceComm.DEFAULT_TRUE);
+		tableName.setIsAnalysis(DefaultComm.DEFAULT_TRUE);
 		mongodbTableNameService.updateTableIsAnalysis(tableName);
 		return new ResultBean.Builder<String>().build(ErrorEnum.SUCCESS);
 	}
@@ -147,8 +150,41 @@ public class AnalysisMongodbController {
 		
 		// 确认字段属性值
 		if( analysisVo.getFieldProperty() != null || !analysisVo.getFieldProperty().isEmpty() ) {
-			mongodbFieldNameService.updateBatchById(analysisVo.getFieldProperty());
+			analysisMongodbService.updateFieldProperty(analysisVo.getFieldProperty());
 		}
+		
+		// 创建数据库表
+		String executeId = analysisMongodbService.createAnalysisResultTable(analysisVo.getId(), analysisVo.getServerId(), analysisVo.getCollName());
+		return new ResultBean.Builder<String>().build(ErrorEnum.SUCCESS, executeId);
+	}
+	
+	/**
+	 * 获取解析数据详情内容
+	 * 
+	 * @param analysisVo
+	 * @return
+	 */
+	@PostMapping("/load-infos")
+	public ResultBean<Map<String, Object>> loadInfos(@RequestBody AnalysisMongodbVo analysisVo){
+		log.info("request data param: {}", JSON.toJSONString(analysisVo));
+		
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		
+		resultMap.put("server", mongodbServerService.selectById(analysisVo.getServerId()));
+		resultMap.put("table", mongodbTableNameService.selectById(analysisVo.getId()));
+		
+		Map<String, Object> columnMap = new HashMap<String, Object>();
+		columnMap.put("table_id", analysisVo.getId());
+		List<MongodbFieldName> fields = mongodbFieldNameService.selectByMap(columnMap);
+		
+		resultMap.put("fields", fields);
+		return new ResultBean.Builder<Map<String, Object>>().build(ErrorEnum.SUCCESS, resultMap);
+	}
+	
+	@ApiOperation(value="接口方式调用解析数据")
+	@PostMapping("/start-analysis")
+	public ResultBean<String> analysis(@PathParam("execute_id")String executeId){
+		
 		return new ResultBean.Builder<String>().build(ErrorEnum.SUCCESS);
 	}
 	

@@ -14,6 +14,10 @@ import lombok.Data;
 public class AnalysisMongodbVo implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
+	/**
+	 * 唯一编号
+	 */
+	private Long id;
 	// 服务编号
 	@NotNull
 	private Long serverId;

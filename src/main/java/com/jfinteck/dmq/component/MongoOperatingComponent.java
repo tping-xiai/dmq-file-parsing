@@ -66,33 +66,24 @@ public class MongoOperatingComponent {
 	 */
 	@SuppressWarnings("deprecation")
 	public JSONObject getMongodbCommandResult(String host, String port, String username, String password, DBObject dbObject) {
-		
-		// 拼接连接MongnoDB的url地址
-		String DEFAULT_URL = "";
-		
-		if(( username == null || username.isEmpty() ) && ( password == null || password.isEmpty())) {
-			DEFAULT_URL = String.format("mongodb://" + host + ":" + port);
-		}else {
-			DEFAULT_URL = String.format("mongodb://" + username + ":" + password + "@" + host + ":" + port);
-		}
-		
+				
 		DB db = null;
 		MongoClient mongoClient = null;
 		JSONObject jsonObject = null;
 		
 		try {
-			MongoClientURI mongoClientURI = new MongoClientURI(DEFAULT_URL);
-			mongoClient = new MongoClient(mongoClientURI);
-			MongoIterable<String> iterable = mongoClient.listDatabaseNames();
-			
-			// 有表存在，则进行下面的操作
-			if( iterable != null && iterable.first() != null && !iterable.first().isEmpty()) {
-				db = mongoClient.getDB(ADMIN_DATABASE_NAME);
-				CommandResult result = db.command(dbObject);
-				String json = result.toJson();
-				jsonObject = JSONObject.parseObject(json);
+			mongoClient = getMongoClient(host, port, username, password);
+			if( mongoClient != null) {
+				MongoIterable<String> iterable = mongoClient.listDatabaseNames();
+				
+				// 有表存在，则进行下面的操作
+				if( iterable != null && iterable.first() != null && !iterable.first().isEmpty()) {
+					db = mongoClient.getDB(ADMIN_DATABASE_NAME);
+					CommandResult result = db.command(dbObject);
+					String json = result.toJson();
+					jsonObject = JSONObject.parseObject(json);
+				}
 			}
-			
 		} catch (Exception e) {
 			log.error("Connection MongoDB is error：{}", e);
 		}finally {
@@ -108,8 +99,26 @@ public class MongoOperatingComponent {
 	/**
 	 * 
 	 * @param mongodbServer
+	 * @return
+	 *       MongoClient
+	 */
+	public MongoClient getMongoClient(MongodbServer mongodbServer) {
+		if( mongodbServer != null ) {
+			String host = mongodbServer.getHost();
+			String port = mongodbServer.getPort();
+			String username = mongodbServer.getUsername();
+			String password = mongodbServer.getPassword();
+			return getMongoClient(host, port, username, password);
+		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param mongodbServer
 	 * @param databaseName
 	 * @return
+	 *         MongoDatabase
 	 */
 	public MongoDatabase getMongoDatabase(MongodbServer mongodbServer, String databaseName) {
 		if( mongodbServer != null ) {
@@ -122,8 +131,7 @@ public class MongoOperatingComponent {
 		return null;
 	}
 	
-	public MongoDatabase getMongoDatabase(String host, String port, String username, String password,
-			String databaseName) {
+	public MongoClient getMongoClient(String host, String port, String username, String password) {
 		// 拼接连接MongnoDB的url地址
 		String DEFAULT_URL = "";
 
@@ -132,12 +140,23 @@ public class MongoOperatingComponent {
 		} else {
 			DEFAULT_URL = String.format("mongodb://" + username + ":" + password + "@" + host + ":" + port);
 		}
-		MongoDatabase database = null;
 		MongoClient mongoClient = null;
 		try {
 			MongoClientURI mongoClientURI = new MongoClientURI(DEFAULT_URL);
 			mongoClient = new MongoClient(mongoClientURI);
-			database = mongoClient.getDatabase(databaseName);
+		}catch (Exception e) {
+			log.info("Create MongoClient is error: {}", e);
+		}
+		return mongoClient;
+	}
+	
+	public MongoDatabase getMongoDatabase(String host, String port, String username, String password,
+			String databaseName) {
+		MongoDatabase database = null;
+		try {
+			MongoClient mongoClient = getMongoClient(host, port, username, password);
+			if( mongoClient != null )
+				database = mongoClient.getDatabase(databaseName);
 		} catch (Exception e) {
 			log.error("Connection MongoDB is error：{}", e);
 		} 

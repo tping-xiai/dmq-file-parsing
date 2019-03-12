@@ -6,6 +6,7 @@
        <id column="id" property="id" javaType="java.lang.Long" />
        <result column="table_id" property="tableId" javaType="java.lang.Long" />
        <result column="field_name" property="fieldName" javaType="java.lang.String" />
+       <result column="original_name" property="originalName" javaType="java.lang.String" />
        <result column="type" property="type" javaType="java.lang.String" />
        <result column="nest" property="nest" javaType="java.lang.String" />
        <result column="decryption" property="decryption" javaType="java.lang.String" />

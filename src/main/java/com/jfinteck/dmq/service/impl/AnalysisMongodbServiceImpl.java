@@ -1,5 +1,8 @@
 package com.jfinteck.dmq.service.impl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,12 +19,17 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jfinteck.dmq.component.MongoOperatingComponent;
+import com.jfinteck.dmq.core.comm.DefaultComm;
 import com.jfinteck.dmq.core.utils.CharUtils;
+import com.jfinteck.dmq.core.utils.DateUtil;
+import com.jfinteck.dmq.core.utils.JoinSQLUtils;
 import com.jfinteck.dmq.dto.BaseDTO;
+import com.jfinteck.dmq.dto.ExecutePlan;
 import com.jfinteck.dmq.dto.MongodbFieldName;
 import com.jfinteck.dmq.dto.MongodbServer;
 import com.jfinteck.dmq.dto.MongodbTableName;
 import com.jfinteck.dmq.service.IAnalysisMongodbService;
+import com.jfinteck.dmq.service.IExecutePlanService;
 import com.jfinteck.dmq.service.IMongodbFieldNameService;
 import com.jfinteck.dmq.service.IMongodbServerService;
 import com.jfinteck.dmq.service.IMongodbTableNameService;
@@ -50,6 +60,10 @@ public class AnalysisMongodbServiceImpl implements IAnalysisMongodbService {
 	private IMongodbTableNameService mongodbTableNameService;
 	@Autowired
 	private IMongodbFieldNameService mongodbFieldNameService;
+	@Autowired
+	private SqlSessionFactory sqlSessionFactory;
+	@Autowired
+	private IExecutePlanService executePlanService;
 	
 	@Override
 	public List<BaseDTO> getDatabaseTables(Long id, String database) {
@@ -189,7 +203,7 @@ public class AnalysisMongodbServiceImpl implements IAnalysisMongodbService {
 					 * 对field做一些处理操作
 					 * eg: userId -> user_id
 					 */
-					fieldNameList.add(new MongodbFieldName(table.getId(), CharUtils.toLowerCase(field)));
+					fieldNameList.add(new MongodbFieldName(table.getId(), CharUtils.toLowerCase(field), field));
 				});
 				
 				if( !fieldNameList.isEmpty() ) {
@@ -206,6 +220,67 @@ public class AnalysisMongodbServiceImpl implements IAnalysisMongodbService {
 		}
 		
 		return id;
+	}
+
+	@Override
+	public void updateFieldProperty(List<MongodbFieldName> fieldProperty) {
+		
+		if( fieldProperty != null && !fieldProperty.isEmpty() ) {
+			fieldProperty.forEach(field -> {
+				if( !StringUtils.isEmpty(field.getDecryption()) ) {
+					field.setType(DefaultComm.DEFAULT_PROPERTY_TYPE);
+					if( !StringUtils.isEmpty(field.getNest()) ) {
+						field.setType(DefaultComm.DEFAULT_PROPERTY_MORE_TYPE);
+					}
+				}
+			});
+			
+			mongodbFieldNameService.updateBatchById(fieldProperty);
+		}
+	}
+
+	@Override
+	public String createAnalysisResultTable(Long id, Long serverId, String collName) {
+		/**
+		 * 对表名称进行处理
+		 */
+		if( StringUtils.isEmpty(collName) ) return null;
+		
+		Map<String, Object> columnMap = new HashMap<String, Object>();
+		columnMap.put("table_id", id);
+		List<MongodbFieldName> fieldNames = mongodbFieldNameService.selectByMap(columnMap);
+		
+		SqlSession sqlSession = sqlSessionFactory.openSession();
+		Connection conn = sqlSession.getConnection();
+		
+		// 当前要创建的表不存在
+		String tableName = "tb_" + CharUtils.toLowerCase(collName.replace(".", "_"));
+		if( JoinSQLUtils.hasTable(conn, tableName) ) {
+			// 当前要创建已经存在，则添加后缀字符- 'yyyyMMddHHmmss'
+			tableName = tableName + DateUtil.getyyyyMMddHHmmssSSCurDate();
+		}
+		String stringSQL = JoinSQLUtils.create(tableName, fieldNames, "MongoDB集合【" + collName + "】解析");
+		log.info("创建表语句：{}", stringSQL);
+		try {
+			PreparedStatement statement = conn.prepareStatement(stringSQL);
+			if(statement.execute()) {
+				log.info("成功完成创建【{}】表存操作.", tableName);
+			}
+		} catch (SQLException e) {
+			log.error("在执行SQL语句创建表，抛出异常：", e);
+		}
+		
+		// 创建一个条计划执行记录
+		String executeId = "EXECUTE_" + DateUtil.getyyyyMMddHHmmssSSCurDate();
+		
+		ExecutePlan plan = new ExecutePlan();
+		plan.setExecuteId(executeId);
+		plan.setServerId(serverId);
+		plan.setCollId(id);
+		plan.setTableName(tableName);
+		executePlanService.insert(plan);
+		
+		return executeId;
 	}
 
 }

@@ -7,13 +7,6 @@ body{padding: 0;margin: 0;font-family: "Helvetica Neue",Helvetica,"PingFang SC",
 
 .data-table{margin: 10px 0!important;}
 
-#id_login{
-	background-image: url("https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg");
-    background-repeat: no-repeat;
-    background-position: center 110px;
-    background-size: 100%;
-}
-
 a:link{text-decoration: none;}
 a:hover{text-decoration: none;}
 a:visited {text-decoration: none;}
@@ -28,3 +21,14 @@ a:visited {text-decoration: none;}
 }
 .warning h4{font-size: 16px; line-height: 15px!important;}
 .warning p{font-size: 14px;line-height: 10px!important;}
+
+.field_name{
+	padding:0px 10px;
+	line-height:26px; 
+	background-color: #E0E0E0;
+	border-radius:50px;
+	margin-left: 5px; 
+	margin-bottom:5px;
+	float: left;
+}
+

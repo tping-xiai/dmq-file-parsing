@@ -41,7 +41,7 @@
 					 <el-step title="步骤 1" description="选择要解析的集合名称"></el-step>
 					 <el-step title="步骤 2" description="选择集合中要解析的字段名"></el-step>
 					 <el-step title="步骤 3" description="填写解析数据存放位置"></el-step>
-					 <el-step title="步骤 4" description="完成数据解析操作"></el-step>
+					 <el-step title="步骤 4" description="确认解析数据操作"></el-step>
 				  </el-steps>
 				  <div style="margin-top:40px;">
 				      <!-- 第一步骤 -->
@@ -166,7 +166,46 @@
 					        <p>3、创建表时，则默认给一个自增ID编号</p>
 					     </div>
 					  </div>
-					  <div v-show="active == '3'">4</div>
+					  <div v-show="active == '3'">
+					     <el-form>
+					       <el-row>
+					         <el-col :span="16" :offset="4">
+					           <div style="font-size: 16px;margin-bottom: 10px;">确认解析数据操作详情：</div>
+					           <el-row>
+						         <el-col :span="8" style="height:30px;">
+						           <el-form-item label="数据库类型：">MongoDB</el-form-item>
+						         </el-col>
+						         <el-col :span="8" style="height:30px;">
+						           <el-form-item label="主机地址：">{{analysisInfo.server.host}}</el-form-item>
+						         </el-col>
+						         <el-col :span="8" style="height:30px;">
+						           <el-form-item label="端口号：">{{analysisInfo.server.port}}</el-form-item>
+						         </el-col>
+						         <el-col :span="8" style="height:30px;">
+						           <el-form-item label="数据库名称：">{{analysisInfo.table.databaseName}}</el-form-item>
+						         </el-col>
+						         <el-col :span="8" style="height:40px;">
+						           <el-form-item label="集合名称：">{{analysisInfo.table.collName}}</el-form-item>
+						         </el-col>
+						         <el-col :span="24">
+						           <el-form-item label="解析字段：">
+						             <div style="border: 1px solid #FFF;">
+							             <span class="field_name" v-for="field in analysisInfo.fields"
+							                :key="field.id">{{field.fieldName}}</span>
+						             </div>
+						           </el-form-item>
+						         </el-col>
+						       </el-row>
+						       
+						       <el-row>
+						         <el-col :span="12" :offset="6" style="margin-top:30px;text-align: center;">
+						           <el-button size="medium" type="primary">开始解析数据</el-button>
+						         </el-col>
+						       </el-row>
+					         </el-col>
+					       </el-row>
+					     </el-form>
+					  </div>
 				  </div>
 			   </div>
 	         </div>
@@ -213,8 +252,19 @@
     		  },
     		  // 创建数据库表名称
     		  tableFieldsData: [],
+    		  // 解析集合名称的编号
+    		  tableId: '',
     		  tableForm: {
+    			  id: '',
+    			  serverId: '',
+    			  collName: '',
     			  fieldProperty: []
+    		  },
+    		  executeId: '',
+    		  analysisInfo: {
+    			  server: {host: '', port: ''},
+    			  table: {databaseName: '', collName: ''},
+    			  fields: []
     		  }
     	  },
     	  methods: {
@@ -283,6 +333,7 @@
     	    					  that.active = 2;
     							  that.title = "（确认表字段）";
     							  
+    							  that.tableId = body.responseData;
     							  that.loadTableFields(body.responseData);
     	    				  }else{
     	    					  this.$message.error('第三步骤保存解析集合字段名称失败.');
@@ -381,15 +432,37 @@
     		  },
     		  // 第三步骤：下一步
     		  handleCreateTable: function(formName){
-    			  
+    			  // 要解析集合名称编号
+    			  this.tableForm.id = this.tableId;
+    			  this.tableForm.serverId = this._id;
+    			  this.tableForm.collName = this.fieldForm.collName;
     			  this.$http.post(this.url + "/confirm-field-property", this.tableForm)
     			  .then((res) => {
     				  var body = res.body;
     				  if( body.code == "00000" ){
     					  this.active = 3;
     					  this.title = "（解析详情）";
+    					  this.executeId = body.responseData;
+    					  
+    					  this.loadInfos();
     				  }else{
     					  this.$message.error('确认操作失败.');
+    				  }
+    			  }),function(){
+    				  this.$message.error('抱歉网络错误.请稍后重试.');
+    			  }
+    		  },
+    		  
+    		  // 获取解析详情说明
+    		  loadInfos: function(){
+    			  var options = {"id": this.tableId, "serverId": this._id};
+    			  this.$http.post(this.url + "/load-infos", options)
+    			  .then((res) => {
+    				  var body = res.body;
+    				  if( body.code == "00000" ){
+    					  this.analysisInfo = body.responseData;
+    				  }else{
+    					  this.$message.error('解析详情信息获取失败.');
     				  }
     			  }),function(){
     				  this.$message.error('抱歉网络错误.请稍后重试.');

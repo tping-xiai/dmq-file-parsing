@@ -46,6 +46,7 @@ CREATE TABLE `tb_mongodb_field_name` (
     `id`             int NOT NULL AUTO_INCREMENT COMMENT '编号',
     `table_id`       int NOT NULL COMMENT '解析表ID编号',
     `field_name`     varchar(30) COLLATE utf8_unicode_ci NOT NULL COMMENT '字段名称',
+    `original_name`  varchar(30) COLLATE utf8_unicode_ci NOT NULL COMMENT '原字段名称',
     `type`           varchar(20) COLLATE utf8_unicode_ci DEFAULT 'varchar(128)' COMMENT '字段类型',
     `nest`           varchar(1) COLLATE utf8_unicode_ci DEFAULT '0' COMMENT '是否有嵌套文档：1-是,0-不是',
     `decryption`     varchar(1) COLLATE utf8_unicode_ci DEFAULT '0' COMMENT '是否要解密：1-是,0-不是',
@@ -53,6 +54,21 @@ CREATE TABLE `tb_mongodb_field_name` (
     `update_time`    datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日期',
     PRIMARY KEY (`id`)
 )ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='保留表字段名';
+
+
+-- 执行计划
+DROP TABLE IF EXISTS `tb_mongodb_execute_plan`;
+CREATE TABLE `tb_mongodb_execute_plan`(
+    `id`             int NOT NULL AUTO_INCREMENT COMMENT '编号',
+    `execute_id`     varchar(50) NOT NULL COMMENT '执行编号',
+    `server_id`      int NOT NULL COMMENT '服务编号',
+    `coll_id`        int NOT NULL COMMENT '集合编号',
+    `table_name`     varchar(50) COMMENT '存放表名称',
+    `flag`           varchar(1) DEFAULT '1' COMMENT '标识：1-可用，0-不可用',
+    `create_time`    datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
+    `update_time`    datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日期',
+    PRIMARY KEY (`id`)
+)ENGINE=InnoDB AUTO_INCREMENT=2019 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='执行计划';
 
 
 -- mongodb执行详情

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jfinteck.dmq.mapper.ExecutePlanMapper">
+
+    <resultMap id="BaseResultMap"  type="com.jfinteck.dmq.dto.ExecutePlan">
+       <id column="id" property="id" javaType="java.lang.Long" />
+       <result column="execute_id" property="executeId" javaType="java.lang.Long"/>
+       <result column="server_id" property="serverId" javaType="java.lang.Long"/>
+       <result column="coll_id" property="collId" javaType="java.lang.Long"/>
+       <result column="table_name" property="tableName" javaType="java.lang.String"/>
+       <result column="flag" property="flag" javaType="java.lang.String"/>
+    </resultMap>
+
+    <resultMap  id="executePlanResultMap" type="com.jfinteck.dmq.dto.ExecutePlanDTO">
+       <id column="id" property="id" javaType="java.lang.Long" />
+       <result column="execute_id" property="executeId" javaType="java.lang.String"/>
+       <result column="server_id" property="serverId" javaType="java.lang.Long"/>
+       <result column="coll_id" property="collId" javaType="java.lang.Long"/>
+       <result column="table_name" property="tableName" javaType="java.lang.String"/>
+       <result column="flag" property="flag" javaType="java.lang.String"/>
+       <association property="mongoServer" javaType="com.jfinteck.dmq.dto.MongodbServer" column="server_id" select="getServer" />
+       <association property="mongoTable" javaType="com.jfinteck.dmq.dto.MongodbTableName" column="coll_id" select="getTableName" />
+       <collection property="mongoField" ofType="com.jfinteck.dmq.dto.MongodbFieldName" column="coll_id" select="getFields" />
+    </resultMap>
+    <select id="selectExecuteById" resultMap="executePlanResultMap">
+       select id, execute_id, server_id, coll_id, table_name, flag
+         from tb_mongodb_execute_plan
+        where execute_id = #{executeId}
+    </select>
+    
+    <!-- MongodbServer -->
+    <resultMap id="MongodbServerResultMap" type="com.jfinteck.dmq.dto.MongodbServer">
+       <id column="id" property="id" javaType="java.lang.Long" />
+       <result column="host" property="host" javaType="java.lang.String"/>
+       <result column="port" property="port" javaType="java.lang.String"/>
+       <result column="username" property="username" javaType="java.lang.String"/>
+       <result column="password" property="password" javaType="java.lang.String"/>
+       <result column="tags" property="tags" javaType="java.lang.String"/>
+       <result column="flag" property="flag" javaType="java.lang.String"/>
+    </resultMap>
+    <select id="getServer" resultMap="MongodbServerResultMap" parameterType="java.lang.Long">
+       select id, host, port, username, password, tags, flag
+         from tb_mongodb_server 
+        where id = #{serverId}
+    </select>
+    
+    <!-- MongodbTableName -->
+    <resultMap id="MongodbTableNameResultMap" type="com.jfinteck.dmq.dto.MongodbTableName">
+       <id column="id" property="id" javaType="java.lang.Long" />
+       <result column="server_id" property="serverId" javaType="java.lang.Long"/>
+       <result column="database_name" property="databaseName" javaType="java.lang.String"/>
+       <result column="coll_name" property="collName" javaType="java.lang.String"/>
+       <result column="flag" property="flag" javaType="java.lang.String"/>
+       <result column="is_analysis" property="isAnalysis" javaType="java.lang.String"/>
+       <result column="filter_condit" property="filterCondit" javaType="java.lang.String"/>
+    </resultMap>
+    <select id="getTableName" resultMap="MongodbTableNameResultMap" parameterType="java.lang.Long">
+       select id, server_id, database_name, coll_name, flag, is_analysis, filter_condit
+         from tb_mongodb_sync_table
+        where id = #{collId}
+    </select>
+    
+    <!-- MongodbFieldName -->
+    <resultMap id="MongodbFieldNameResultMap" type="com.jfinteck.dmq.dto.MongodbFieldName">
+       <id column="id" property="id" javaType="java.lang.Long" />
+       <result column="table_id" property="tableId" javaType="java.lang.Long" />
+       <result column="field_name" property="fieldName" javaType="java.lang.String" />
+       <result column="original_name" property="originalName" javaType="java.lang.String" />
+       <result column="type" property="type" javaType="java.lang.String" />
+       <result column="nest" property="nest" javaType="java.lang.String" />
+       <result column="decryption" property="decryption" javaType="java.lang.String" />
+    </resultMap>
+    <select id="getFields" resultMap="MongodbFieldNameResultMap" parameterType="java.lang.Long">
+       select id, table_id, field_name, original_name, type, nest, decryption
+         from tb_mongodb_field_name
+        where table_id = #{tableId}
+    </select>
+</mapper>

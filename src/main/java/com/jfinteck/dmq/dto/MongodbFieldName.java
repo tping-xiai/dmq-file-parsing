@@ -40,6 +40,12 @@ public class MongodbFieldName extends Model<MongodbFieldName>{
 	@TableField(value="field_name")
 	private String fieldName;
 	
+	/**
+	 * 原来字段名称
+	 */
+	@TableField(value="original_name")
+	private String originalName;
+	
 	private String type;
 	
 	/**
@@ -52,9 +58,10 @@ public class MongodbFieldName extends Model<MongodbFieldName>{
 	 */
 	private String decryption;
 	
-	public MongodbFieldName(Long tableId, String fieldName) {
+	public MongodbFieldName(Long tableId, String fieldName, String originalName) {
 		this.tableId = tableId;
 		this.fieldName = fieldName;
+		this.originalName = originalName;
 	}
 	
 	@Override
